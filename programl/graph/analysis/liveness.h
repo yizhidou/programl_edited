@@ -45,10 +45,16 @@ class LivenessAnalysis : public RoodNodeDataFlowAnalysis {
 
   const std::vector<absl::flat_hash_set<int>>& live_out_sets() const { return liveOutSets_; }
 
+  const std::vector<std::bitvector>& gens_of_program_point() const {return Gens_;}
+
  private:
   // Live-in and live-out sets that are computed during Init().
   std::vector<absl::flat_hash_set<int>> liveInSets_;
   std::vector<absl::flat_hash_set<int>> liveOutSets_;
+  std::vector<absl::flat_hash_set<int>> DFAValues_; // 这个确实应该是一个vector of bitvector的东西
+  // 这个其实也应该是vector of bitvector, 通过一个单独的函数给算出来
+  absl::flat_hash_map<int, std::unique_ptr<int>> Gens_;
+  absl::flat_hash_map<int, std::unique_ptr<int>> Kills_;
 };
 
 }  // namespace analysis

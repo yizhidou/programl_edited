@@ -26,8 +26,8 @@ option java_multiple_files = true;
 option java_outer_classname = "UtilProto";
 option java_package = "com.programl";
 
-import "programl/proto/program_graph.proto";
-import "programl/third_party/tensorflow/features.proto";
+import "program_graph.proto";      //import "programl/proto/program_graph.proto";
+import "features.proto";      //import "programl/third_party/tensorflow/features.proto";
 
 // A list of program graphs.
 message ProgramGraphList {
