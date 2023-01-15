@@ -1,5 +1,6 @@
 #pragma once
 #include "yzd_analysis.h"
+#include "labm8/cpp/logging.h"
 
 namespace programl {
 
@@ -44,12 +45,12 @@ BitVector AnalysisBase::MeetBitVectors(const int iterIdx, const int sourceNodeId
     return meet_result;
   }
 
-void AnalysisBase::IterativeAlgorithm() {
+labm8::Status AnalysisBase::IterativeAlgorithm() {
     // add all nodes in worklist
     for (int pp : program_points) {
       work_list.emplace(1, pp);
     }
-
+    
     while (!work_list.empty()) {
       WorklistItem cur_item = work_list.front();
       work_list.pop();

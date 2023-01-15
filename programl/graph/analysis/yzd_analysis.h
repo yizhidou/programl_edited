@@ -7,6 +7,7 @@
 #include "programl/proto/program_graph.pb.h"
 #include "programl/proto/util.pb.h"
 #include "yzd_utils.h"
+#include "labm8/cpp/logging.h"
 
 namespace programl {
 
@@ -44,7 +45,7 @@ class AnalysisBase {
     CalculateGenKill();   // 这个就是把gens/kills算出来呗
   }
 
-  void IterativeAlgorithm();
+  labm8::Status IterativeAlgorithm();
 
   int GetNumIteration() const { return num_iteration; }
 
