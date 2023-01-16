@@ -2,6 +2,7 @@
 #include "yzd_analysis.h"
 #include "labm8/cpp/logging.h"
 
+
 namespace programl {
 
 void AnalysisBase::InitSettings() {
@@ -45,7 +46,7 @@ BitVector AnalysisBase::MeetBitVectors(const int iterIdx, const int sourceNodeId
     return meet_result;
   }
 
-labm8::Status AnalysisBase::IterativeAlgorithm() {
+void AnalysisBase::Run(ResultsEveryIteration* results) {
     // add all nodes in worklist
     for (int pp : program_points) {
       work_list.emplace(1, pp);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "yzd_utils.h"
-
+// #include "labm8/cpp/status.h"
 #include <bitset>
 #include <cstddef>
 #include <iostream>
@@ -24,6 +24,12 @@ BitVector operator|(const BitVector& lhs, const BitVector& rhs){
   return result;
 }
 
+SparseBitVector operator|(SparseBitVector& lhs, SparseBitVector& rhs){
+  SparseBitVector result(lhs);
+  result.merge(rhs);
+  return result;
+}
+
 BitVector& operator|=(BitVector& lhs, const BitVector& rhs){
   if (lhs.size() != rhs.size()){
     std::cout << "length unmatch error!" << std::endl;
@@ -32,6 +38,11 @@ BitVector& operator|=(BitVector& lhs, const BitVector& rhs){
   for (int i = 0; i < lhs.size(); i++){
     lhs[i] = lhs[i] || rhs[i];
   }
+  return lhs;
+}
+
+SparseBitVector operator|=(SparseBitVector& lhs, SparseBitVector& rhs){
+  lhs.merge(rhs);
   return lhs;
 }
 
@@ -47,6 +58,16 @@ BitVector operator&(const BitVector& lhs, const BitVector& rhs){
   return result;
 }
 
+SparseBitVector operator&(const SparseBitVector& lhs, const SparseBitVector& rhs){
+  SparseBitVector result(lhs);
+  for (const auto& item : rhs){
+    if (lhs.contains(item)){
+      result.erase(item);
+    }
+  }
+  return result;
+}
+
 BitVector& operator&=(BitVector& lhs, const BitVector& rhs){
   if (lhs.size() != rhs.size()){
     std::cout << "length unmatch error!" << std::endl;
@@ -54,6 +75,15 @@ BitVector& operator&=(BitVector& lhs, const BitVector& rhs){
   }
   for (int i = 0; i < lhs.size(); i++){
     lhs[i] = lhs[i] && rhs[i];
+  }
+  return lhs;
+}
+
+SparseBitVector& operator&=(SparseBitVector& lhs, const SparseBitVector& rhs){
+  for (const auto& item : rhs){
+    if (lhs.contains(item)){
+      lhs.erase(item);
+    }
   }
   return lhs;
 }
@@ -68,6 +98,10 @@ BitVector operator-(const BitVector& lhs, const BitVector& rhs){
       result.emplace_back((bool)((lhs[i] - rhs[i]) > 0));
     }
   return result;
+}
+
+SparseBitVector operator-(const SparseBitVector& lhs, const SparseBitVector& rhs){
+  
 }
 
 

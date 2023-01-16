@@ -45,7 +45,7 @@ class AnalysisBase {
     CalculateGenKill();   // 这个就是把gens/kills算出来呗
   }
 
-  labm8::Status IterativeAlgorithm();
+  void Run(ResultsEveryIteration* results);
 
   int GetNumIteration() const { return num_iteration; }
 

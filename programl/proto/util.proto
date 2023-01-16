@@ -137,3 +137,15 @@ message NodeIndexList {
   // values are node inidices in the new graph representation.
   repeated int32 node = 1;
 }
+
+// yzd added part
+
+message ResultsEveryIteration {
+  repeated ResultOneIteration results_every_iteration = 1;
+  Int64List program_points=2;
+  Int64List interested_points=3;
+}
+
+message ResultOneIteration {
+  map<int64, Int64List> result_one_iteration = 1;
+}
