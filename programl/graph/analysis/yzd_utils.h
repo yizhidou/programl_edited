@@ -7,7 +7,7 @@
 #include <unordered_set>
 #include "absl/container/flat_hash_set.h"
 
-typedef std::vector<bool> BitVector;
+// typedef std::vector<bool> BitVector;
 typedef absl::flat_hash_set<int> SparseBitVector;
 
 struct WorklistItem
@@ -24,16 +24,21 @@ struct Adjacencies
   // std::vector<std::vector<int>> uses;
 };
 
-BitVector operator|(const BitVector& lhs, const BitVector& rhs);
-BitVector& operator|=(BitVector& lhs, const BitVector& rhs);
+// BitVector operator|(const BitVector& lhs, const BitVector& rhs);
+// BitVector& operator|=(BitVector& lhs, const BitVector& rhs);
 
-BitVector operator&(const BitVector& lhs, const BitVector& rhs);
-BitVector& operator&=(BitVector& lhs, const BitVector& rhs);
+// BitVector operator&(const BitVector& lhs, const BitVector& rhs);
+// BitVector& operator&=(BitVector& lhs, const BitVector& rhs);
 
-BitVector operator-(const BitVector& lhs, const BitVector& rhs);
+// BitVector operator-(const BitVector& lhs, const BitVector& rhs);
 
 SparseBitVector operator|(SparseBitVector& lhs, SparseBitVector& rhs);
 SparseBitVector operator|=(SparseBitVector& lhs, SparseBitVector& rhs);
+
+SparseBitVector operator&(const SparseBitVector& lhs, const SparseBitVector& rhs);
+SparseBitVector& operator&=(SparseBitVector& lhs, const SparseBitVector& rhs);
+
+SparseBitVector operator-(const SparseBitVector& lhs, const SparseBitVector& rhs);
 
 
 struct AnalysisSetting {

@@ -11,18 +11,64 @@
 #include <vector>
 
 
-BitVector operator|(const BitVector& lhs, const BitVector& rhs){
-  if (lhs.size() != rhs.size()){
-    std::cout << "length unmatch error!" << std::endl;
-    //TODO: exception handling
-  }
-  BitVector result;
-  result.reserve(lhs.size());
-  for (int i = 0; i < lhs.size(); i++) {
-      result.emplace_back(lhs[i] || rhs[i]);
-    }
-  return result;
-}
+// BitVector operator|(const BitVector& lhs, const BitVector& rhs){
+//   if (lhs.size() != rhs.size()){
+//     std::cout << "length unmatch error!" << std::endl;
+//     //TODO: exception handling
+//   }
+//   BitVector result;
+//   result.reserve(lhs.size());
+//   for (int i = 0; i < lhs.size(); i++) {
+//       result.emplace_back(lhs[i] || rhs[i]);
+//     }
+//   return result;
+// }
+
+// BitVector& operator|=(BitVector& lhs, const BitVector& rhs){
+//   if (lhs.size() != rhs.size()){
+//     std::cout << "length unmatch error!" << std::endl;
+//     //TODO: exception handling
+//   }
+//   for (int i = 0; i < lhs.size(); i++){
+//     lhs[i] = lhs[i] || rhs[i];
+//   }
+//   return lhs;
+// }
+
+// BitVector operator&(const BitVector& lhs, const BitVector& rhs){
+//   if (lhs.size() != rhs.size()){
+//     std::cout << "length unmatch error!" << std::endl;
+//   }
+//   BitVector result;
+//   result.reserve(lhs.size());
+//   for (int i = 0; i < lhs.size(); i++) {
+//       result.emplace_back(lhs[i] && rhs[i]);
+//     }
+//   return result;
+// }
+
+// BitVector& operator&=(BitVector& lhs, const BitVector& rhs){
+//   if (lhs.size() != rhs.size()){
+//     std::cout << "length unmatch error!" << std::endl;
+//     //TODO: exception handling
+//   }
+//   for (int i = 0; i < lhs.size(); i++){
+//     lhs[i] = lhs[i] && rhs[i];
+//   }
+//   return lhs;
+// }
+
+// BitVector operator-(const BitVector& lhs, const BitVector& rhs){
+//   if (lhs.size() != rhs.size()){
+//     std::cout << "length unmatch error!" << std::endl;
+//   }
+//   BitVector result;
+//   result.reserve(lhs.size());
+//   for (int i = 0; i < lhs.size(); i++) {
+//       result.emplace_back((bool)((lhs[i] - rhs[i]) > 0));
+//     }
+//   return result;
+// }
 
 SparseBitVector operator|(SparseBitVector& lhs, SparseBitVector& rhs){
   SparseBitVector result(lhs);
@@ -30,78 +76,38 @@ SparseBitVector operator|(SparseBitVector& lhs, SparseBitVector& rhs){
   return result;
 }
 
-BitVector& operator|=(BitVector& lhs, const BitVector& rhs){
-  if (lhs.size() != rhs.size()){
-    std::cout << "length unmatch error!" << std::endl;
-    //TODO: exception handling
-  }
-  for (int i = 0; i < lhs.size(); i++){
-    lhs[i] = lhs[i] || rhs[i];
-  }
-  return lhs;
-}
-
 SparseBitVector operator|=(SparseBitVector& lhs, SparseBitVector& rhs){
   lhs.merge(rhs);
   return lhs;
 }
 
-BitVector operator&(const BitVector& lhs, const BitVector& rhs){
-  if (lhs.size() != rhs.size()){
-    std::cout << "length unmatch error!" << std::endl;
-  }
-  BitVector result;
-  result.reserve(lhs.size());
-  for (int i = 0; i < lhs.size(); i++) {
-      result.emplace_back(lhs[i] && rhs[i]);
-    }
-  return result;
-}
-
 SparseBitVector operator&(const SparseBitVector& lhs, const SparseBitVector& rhs){
-  SparseBitVector result(lhs);
-  for (const auto& item : rhs){
-    if (lhs.contains(item)){
-      result.erase(item);
+  SparseBitVector result;
+  for (const auto& item : lhs){
+    if (rhs.contains(item)){
+      result.insert(item);
     }
   }
   return result;
-}
-
-BitVector& operator&=(BitVector& lhs, const BitVector& rhs){
-  if (lhs.size() != rhs.size()){
-    std::cout << "length unmatch error!" << std::endl;
-    //TODO: exception handling
-  }
-  for (int i = 0; i < lhs.size(); i++){
-    lhs[i] = lhs[i] && rhs[i];
-  }
-  return lhs;
 }
 
 SparseBitVector& operator&=(SparseBitVector& lhs, const SparseBitVector& rhs){
-  for (const auto& item : rhs){
-    if (lhs.contains(item)){
+  for (const auto& item : lhs){
+    if (!rhs.contains(item)){
       lhs.erase(item);
     }
   }
   return lhs;
 }
 
-BitVector operator-(const BitVector& lhs, const BitVector& rhs){
-  if (lhs.size() != rhs.size()){
-    std::cout << "length unmatch error!" << std::endl;
-  }
-  BitVector result;
-  result.reserve(lhs.size());
-  for (int i = 0; i < lhs.size(); i++) {
-      result.emplace_back((bool)((lhs[i] - rhs[i]) > 0));
-    }
-  return result;
-}
-
 SparseBitVector operator-(const SparseBitVector& lhs, const SparseBitVector& rhs){
-  
+  SparseBitVector result;
+  for (const auto& item : lhs){
+    if (rhs.contains(item)){
+      result.erase(item);
+    }
+  }
+  return result;
 }
 
 

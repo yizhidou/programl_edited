@@ -8,13 +8,15 @@
 #include "programl/proto/util.pb.h"
 #include "yzd_utils.h"
 #include "labm8/cpp/logging.h"
+#include "absl/container/flat_hash_map.h"
 
 namespace programl {
 
 class AnalysisBase {
  private:
-  std::vector<std::vector<const BitVector*>> result_pointers;
-  std::vector<BitVector> stored_result_set;
+  // std::vector<std::vector<const SparseBitVector*>> result_pointers;
+  std::vector<absl::flat_hash_map<int, SparseBitVector*>> result_pointers;
+  std::vector<SparseBitVector> stored_result_set;
   std::queue<WorklistItem> work_list;
   int num_iteration = 0;
 
@@ -28,14 +30,14 @@ class AnalysisBase {
 
 
   AnalysisSetting analysis_setting;
-  std::map<int, BitVector> gens;
-  std::map<int, BitVector> kills;
+  std::map<int, SparseBitVector> gens;
+  std::map<int, SparseBitVector> kills;
 
  private:
   void InitSettings();
 
-  BitVector MeetBitVectors(const int iterIdx, const int sourceNodeIdx,
-                           const std::vector<int>& targetNodeList);
+  SparseBitVector MeetBitVectors(const int iterIdx, const std::vector<int>& targetNodeList);
+  
 
  public:
   explicit AnalysisBase(const ProgramGraph& pg, const AnalysisSetting& s)
@@ -45,7 +47,7 @@ class AnalysisBase {
     CalculateGenKill();   // 这个就是把gens/kills算出来呗
   }
 
-  void Run(ResultsEveryIteration* results);
+  void Run(ResultsEveryIteration* resultsOfAllIterations);
 
   int GetNumIteration() const { return num_iteration; }
 
