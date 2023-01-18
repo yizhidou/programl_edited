@@ -5,7 +5,7 @@
 #include "labm8/cpp/logging.h"
 
 
-namespace programl {
+namespace yzd {
 
 void AnalysisBase::InitSettings() {
   // 这里应该check一下num_point_interested和num_point_interested这两个数值得是大于0的
@@ -26,7 +26,7 @@ void AnalysisBase::InitSettings() {
   }
 }
 
-SparseBitVector AnalysisBase::MeetBitVectors(const int iterIdx, const std::vector<int>& targetNodeList) {
+SparseBitVector AnalysisBase::MeetBitVectors(const int iterIdx, const absl::flat_hash_set<int>& targetNodeList) {
     if (targetNodeList.empty()) {
       // TODO exception handling
     }
@@ -49,7 +49,7 @@ SparseBitVector AnalysisBase::MeetBitVectors(const int iterIdx, const std::vecto
     return meet_result;
   }
 
-void AnalysisBase::Run(ResultsEveryIteration* resultsOfAllIterations) {
+void AnalysisBase::Run(programl::ResultsEveryIteration* resultsOfAllIterations) {
     // add all nodes in worklist
     for (int pp : program_points) {
       work_list.emplace(1, pp);
@@ -91,7 +91,7 @@ void AnalysisBase::Run(ResultsEveryIteration* resultsOfAllIterations) {
       result_pointers[cur_iter_idx][cur_node_idx] = &(stored_result_set.back());
 
       // add predecessors/successors to worklist
-      std::vector<int>& affected_list = analysis_setting.forward_or_backward == "forward"
+      absl::flat_hash_set<int>& affected_list = analysis_setting.forward_or_backward == "forward"
                                             ? adjacencies.control_adj_list[cur_node_idx]
                                             : adjacencies.control_reverse_adj_list[cur_node_idx];
 
@@ -101,8 +101,10 @@ void AnalysisBase::Run(ResultsEveryIteration* resultsOfAllIterations) {
     }
 
     //接下来就是把result_pointers写到resultsOfAllIterations里
-    //先写program_points和interested_points
-    Int64List program_points_list, interested_points_list;
+    //先写program_points和interested_points, 还有task_name
+    resultsOfAllIterations->set_task_name(analysis_setting.task_name);
+
+    programl::Int64List program_points_list, interested_points_list;
     program_points_list.mutable_value()->Add(program_points.begin(), program_points.end());
     *(resultsOfAllIterations->mutable_program_points()) = program_points_list; // 这样写应该对吧？ should be double check!
 
@@ -111,14 +113,15 @@ void AnalysisBase::Run(ResultsEveryIteration* resultsOfAllIterations) {
     
     for (int iter_idx = 0; iter_idx < result_pointers.size(); iter_idx ++){
       const absl::flat_hash_map<int, SparseBitVector*>& result_pointers_one_iteration = result_pointers[iter_idx];
-      ResultOneIteration result_one_iteration_message;
+      programl::ResultOneIteration result_one_iteration_message;
       for(const auto& it: result_pointers_one_iteration){
         // *(result_one_iteration.mutable_result_one_iteration())[it.first] = *(it.second);
-        Int64List tmp; 
+        programl::Int64List tmp; 
         tmp.mutable_value()->Add(it.second->begin(), it.second->end());
-        (*result_one_iteration_message.mutable_result_one_iteration())[it.first] = tmp; //这个地方我怀疑不太对，因为原本存的是指针来着
+        (*result_one_iteration_message.mutable_result_map())[it.first] = tmp; //这个地方我怀疑不太对，因为原本存的是指针来着
       }
-      resultsOfAllIterations->mutable_results_every_iteration()->Add(result_one_iteration_message);
+      programl::ResultOneIteration* added_one_iteration_result_ptr = resultsOfAllIterations->add_results_every_iteration();
+      *added_one_iteration_result_ptr = result_one_iteration_message;
       
 
     }

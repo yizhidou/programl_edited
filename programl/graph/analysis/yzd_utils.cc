@@ -10,65 +10,7 @@
 #include <utility>
 #include <vector>
 
-
-// BitVector operator|(const BitVector& lhs, const BitVector& rhs){
-//   if (lhs.size() != rhs.size()){
-//     std::cout << "length unmatch error!" << std::endl;
-//     //TODO: exception handling
-//   }
-//   BitVector result;
-//   result.reserve(lhs.size());
-//   for (int i = 0; i < lhs.size(); i++) {
-//       result.emplace_back(lhs[i] || rhs[i]);
-//     }
-//   return result;
-// }
-
-// BitVector& operator|=(BitVector& lhs, const BitVector& rhs){
-//   if (lhs.size() != rhs.size()){
-//     std::cout << "length unmatch error!" << std::endl;
-//     //TODO: exception handling
-//   }
-//   for (int i = 0; i < lhs.size(); i++){
-//     lhs[i] = lhs[i] || rhs[i];
-//   }
-//   return lhs;
-// }
-
-// BitVector operator&(const BitVector& lhs, const BitVector& rhs){
-//   if (lhs.size() != rhs.size()){
-//     std::cout << "length unmatch error!" << std::endl;
-//   }
-//   BitVector result;
-//   result.reserve(lhs.size());
-//   for (int i = 0; i < lhs.size(); i++) {
-//       result.emplace_back(lhs[i] && rhs[i]);
-//     }
-//   return result;
-// }
-
-// BitVector& operator&=(BitVector& lhs, const BitVector& rhs){
-//   if (lhs.size() != rhs.size()){
-//     std::cout << "length unmatch error!" << std::endl;
-//     //TODO: exception handling
-//   }
-//   for (int i = 0; i < lhs.size(); i++){
-//     lhs[i] = lhs[i] && rhs[i];
-//   }
-//   return lhs;
-// }
-
-// BitVector operator-(const BitVector& lhs, const BitVector& rhs){
-//   if (lhs.size() != rhs.size()){
-//     std::cout << "length unmatch error!" << std::endl;
-//   }
-//   BitVector result;
-//   result.reserve(lhs.size());
-//   for (int i = 0; i < lhs.size(); i++) {
-//       result.emplace_back((bool)((lhs[i] - rhs[i]) > 0));
-//     }
-//   return result;
-// }
+namespace yzd{
 
 SparseBitVector operator|(SparseBitVector& lhs, SparseBitVector& rhs){
   SparseBitVector result(lhs);
@@ -128,3 +70,4 @@ struct AnalysisSetting {
     max_iteration = other.max_iteration;
   }
 };
+} // namespace yzd

@@ -26,6 +26,8 @@ option java_multiple_files = true;
 option java_outer_classname = "UtilProto";
 option java_package = "com.programl";
 
+// import "programl/proto/program_graph.proto";
+// import "programl/third_party/tensorflow/features.proto";
 import "program_graph.proto";      //import "programl/proto/program_graph.proto";
 import "features.proto";      //import "programl/third_party/tensorflow/features.proto";
 
@@ -142,10 +144,11 @@ message NodeIndexList {
 
 message ResultsEveryIteration {
   repeated ResultOneIteration results_every_iteration = 1;
-  Int64List program_points=2;
-  Int64List interested_points=3;
+  optional Int64List program_points=2;
+  optional Int64List interested_points=3;
+  optional string task_name = 4;
 }
 
 message ResultOneIteration {
-  map<int64, Int64List> result_one_iteration = 1;
+  map<int64, Int64List> result_map = 1;
 }
