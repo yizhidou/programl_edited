@@ -19,6 +19,9 @@
 #include "labm8/cpp/logging.h"
 #include "labm8/cpp/status.h"
 #include "labm8/cpp/status_macros.h"
+#if PROGRAML_LLVM_VERSION_MAJOR > 10
+#include "llvm/ADT/StringRef.h"
+#endif
 
 using labm8::Status;
 namespace error = labm8::error;
@@ -40,17 +43,17 @@ Module* ProgramGraphBuilder::AddModule(const string& name) {
   return module;
 }
 
-Function* ProgramGraphBuilder::AddFunction(const string& name, const Module* module) {
-  DCHECK(module) << "nullptr argument";
-  int32_t index = GetProgramGraph().function_size();
-  Function* function = GetMutableProgramGraph()->add_function();
-  function->set_name(name);
-  function->set_module(GetIndex(module));
-  functionIndices_.insert({function, index});
-  emptyFunctions_.insert(function);
-  emptyModules_.erase(module);
-  return function;
-}
+// Function* ProgramGraphBuilder::AddFunction(const string& name, const Module* module) {
+//   DCHECK(module) << "nullptr argument";
+//   int32_t index = GetProgramGraph().function_size();
+//   Function* function = GetMutableProgramGraph()->add_function();
+//   function->set_name(name);
+//   function->set_module(GetIndex(module));
+//   functionIndices_.insert({function, index});
+//   emptyFunctions_.insert(function);
+//   emptyModules_.erase(module);
+//   return function;
+// }
 
 Node* ProgramGraphBuilder::AddInstruction(const string& text, const Function* function) {
   DCHECK(function) << "nullptr argument";

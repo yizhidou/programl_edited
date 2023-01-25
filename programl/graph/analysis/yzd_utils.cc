@@ -12,19 +12,19 @@
 
 namespace yzd{
 
-SparseBitVector operator|(SparseBitVector& lhs, SparseBitVector& rhs){
-  SparseBitVector result(lhs);
+NodeSet operator|(NodeSet& lhs, NodeSet& rhs){
+  NodeSet result(lhs);
   result.merge(rhs);
   return result;
 }
 
-SparseBitVector operator|=(SparseBitVector& lhs, SparseBitVector& rhs){
+NodeSet operator|=(NodeSet& lhs, NodeSet& rhs){
   lhs.merge(rhs);
   return lhs;
 }
 
-SparseBitVector operator&(const SparseBitVector& lhs, const SparseBitVector& rhs){
-  SparseBitVector result;
+NodeSet operator&(const NodeSet& lhs, const NodeSet& rhs){
+  NodeSet result;
   for (const auto& item : lhs){
     if (rhs.contains(item)){
       result.insert(item);
@@ -33,7 +33,7 @@ SparseBitVector operator&(const SparseBitVector& lhs, const SparseBitVector& rhs
   return result;
 }
 
-SparseBitVector& operator&=(SparseBitVector& lhs, const SparseBitVector& rhs){
+NodeSet& operator&=(NodeSet& lhs, const NodeSet& rhs){
   for (const auto& item : lhs){
     if (!rhs.contains(item)){
       lhs.erase(item);
@@ -42,8 +42,8 @@ SparseBitVector& operator&=(SparseBitVector& lhs, const SparseBitVector& rhs){
   return lhs;
 }
 
-SparseBitVector operator-(const SparseBitVector& lhs, const SparseBitVector& rhs){
-  SparseBitVector result;
+NodeSet operator-(const NodeSet& lhs, const NodeSet& rhs){
+  NodeSet result;
   for (const auto& item : lhs){
     if (rhs.contains(item)){
       result.erase(item);
@@ -51,23 +51,4 @@ SparseBitVector operator-(const SparseBitVector& lhs, const SparseBitVector& rhs
   }
   return result;
 }
-
-
-struct AnalysisSetting {
-  std::string forward_or_backward;
-  std::string may_or_must;
-  std::string initialize_mode;  // 这几个感觉应该换成enum
-  int max_iteration;
-  AnalysisSetting(const std::string& forwardBackward, const std::string& mayMust,
-                  const std::string intializeMode, int maxIteration)
-      : forward_or_backward(forwardBackward),
-        may_or_must(mayMust),
-        initialize_mode(intializeMode),
-        max_iteration(maxIteration) {}
-  AnalysisSetting(const AnalysisSetting& other) {
-    forward_or_backward = other.forward_or_backward;
-    may_or_must = other.may_or_must;
-    max_iteration = other.max_iteration;
-  }
-};
 } // namespace yzd

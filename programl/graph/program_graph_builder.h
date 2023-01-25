@@ -26,6 +26,10 @@
 #include "labm8/cpp/string.h"
 #include "programl/proto/program_graph.pb.h"
 #include "programl/proto/util.pb.h"
+// #if PROGRAML_LLVM_VERSION_MAJOR > 6
+#include "labm8/cpp/logging.h"
+#include "llvm/ADT/StringRef.h"
+// #endif
 
 namespace programl {
 namespace graph {
@@ -55,7 +59,23 @@ class ProgramGraphBuilder {
   Module* AddModule(const string& name);
 
   // Construct a new function and return its number.
-  Function* AddFunction(const string& name, const Module* module);
+  // Function* AddFunction(const string& name, const Module* module);
+
+// yzd
+// #if PROGRAML_LLVM_VERSION_MAJOR > 6
+  Function* AddFunction(const llvm::StringRef name, const Module* module) {
+    DCHECK(module) << "nullptr argument";
+    int32_t index = GetProgramGraph().function_size();
+    Function* function = GetMutableProgramGraph()->add_function();
+    const std::string name_str = name.str();
+    function->set_name(name_str);
+    function->set_module(GetIndex(module));
+    functionIndices_.insert({function, index});
+    emptyFunctions_.insert(function);
+    emptyModules_.erase(module);
+    return function;
+  }
+// #endif
 
   // Node factories.
   Node* AddInstruction(const string& text, const Function* function);

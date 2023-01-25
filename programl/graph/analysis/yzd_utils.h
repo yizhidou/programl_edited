@@ -1,44 +1,66 @@
+#include <cstddef>
 #include <iostream>
 #include <queue>
 #include <string>
 #include <utility>
 #include <vector>
-#include <cstddef>
-#include <unordered_set>
+
+#include "absl/container/flat_hash_map.h"
 #include "absl/container/flat_hash_set.h"
 
-namespace yzd{
-using SparseBitVector = absl::flat_hash_set<int>;
+namespace yzd {
+using NodeSet = absl::flat_hash_set<int>;
 
-struct WorklistItem
-{
+struct WorklistItem {
   int iter_idx;
   int node_idx;
 };
 
-struct Adjacencies
-{
+struct Adjacencies {
   absl::flat_hash_map<int, absl::flat_hash_set<int>> control_adj_list;
   absl::flat_hash_map<int, absl::flat_hash_set<int>> control_reverse_adj_list;
 };
 
-SparseBitVector operator|(SparseBitVector& lhs, SparseBitVector& rhs);
-SparseBitVector operator|=(SparseBitVector& lhs, SparseBitVector& rhs);
+NodeSet operator|(NodeSet& lhs, NodeSet& rhs);
+NodeSet operator|=(NodeSet& lhs, NodeSet& rhs);
+NodeSet operator&(const NodeSet& lhs, const NodeSet& rhs);
+NodeSet& operator&=(NodeSet& lhs, const NodeSet& rhs);
+NodeSet operator-(const NodeSet& lhs, const NodeSet& rhs);
 
-SparseBitVector operator&(const SparseBitVector& lhs, const SparseBitVector& rhs);
-SparseBitVector& operator&=(SparseBitVector& lhs, const SparseBitVector& rhs);
-
-SparseBitVector operator-(const SparseBitVector& lhs, const SparseBitVector& rhs);
-
+enum TaskName { yzd_liveness };
+enum Direction { forward, backward };
+enum MayOrMust { may, must };
+enum InitializeMode { allzeros, allones };
 
 struct AnalysisSetting {
-  std::string task_name;
-  std::string forward_or_backward;
-  std::string may_or_must;
-  std::string initialize_mode;
+  TaskName task_name;
+  Direction direction;
+  MayOrMust may_or_must;
+  InitializeMode initialize_mode;
   int max_iteration;
-  AnalysisSetting(const std::string& forwardBackward, const std::string& mayMust,
-                  const std::string intializeMode, int maxIteration);
-  AnalysisSetting(const AnalysisSetting& other);
+  AnalysisSetting(const TaskName taskName, int maxIteration)
+      : task_name(taskName), max_iteration(maxIteration) {
+    switch (task_name) {
+      case yzd_liveness:
+        direction = backward;
+        may_or_must = may;
+        initialize_mode = allzeros;
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  std::string TaskNameToString() {
+    switch (task_name) {
+      case yzd_liveness:
+        return std::string("Liveness Analysis (yzd)");
+        break;
+
+      default:
+        break;
+    }
+  }
 };
-} //namespace yzd
+}  // namespace yzd

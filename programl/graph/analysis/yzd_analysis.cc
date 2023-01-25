@@ -11,22 +11,22 @@ void AnalysisBase::InitSettings() {
   // 这里应该check一下num_point_interested和num_point_interested这两个数值得是大于0的
 
   // add result of iteration 0 into result_pointers.
-  if (analysis_setting.initialize_mode == "AllZeros") {
+  if (analysis_setting.initialize_mode == allzeros) {
     // auto emplaced = stored_result_set.emplace(GetNumInterestedPoints(), 0);
     // result_pointers.emplace_back(GetNumProgramPoints(), &(*emplaced.first));
-    stored_result_set.emplace_back();
-    assert((stored_result_set.size() == 1) && "By now, there should be only one element in the stored_result set!");
-    result_pointers.emplace_back(GetNumProgramPoints(), &stored_result_set.back());
-  } else if (analysis_setting.initialize_mode == "AllOnes") {
+    stored_nodesets.emplace_back();
+    assert((stored_nodesets.size() == 1) && "By now, there should be only one element in the stored_result set!");
+    result_pointers.emplace_back(GetNumProgramPoints(), &stored_nodesets.back());
+  } else if (analysis_setting.initialize_mode == allones) {
     // auto emplaced = stored_result_set.emplace(GetNumInterestedPoints(), 1);
     // result_pointers.emplace_back(GetNumInterestedPoints(), &(*emplaced.first));
-    stored_result_set.emplace_back(interested_points.begin(), interested_points.end());
-    assert((stored_result_set.size() == 1) && "By now, there should be only one element in the stored_result set!");
-    result_pointers.emplace_back(GetNumProgramPoints(), &stored_result_set.back());
+    stored_nodesets.emplace_back(interested_points.begin(), interested_points.end());
+    assert((stored_nodesets.size() == 1) && "By now, there should be only one element in the stored_result set!");
+    result_pointers.emplace_back(GetNumProgramPoints(), &stored_nodesets.back());
   }
 }
 
-SparseBitVector AnalysisBase::MeetBitVectors(const int iterIdx, const absl::flat_hash_set<int>& targetNodeList) {
+NodeSet AnalysisBase::MeetOperation(const int iterIdx, const absl::flat_hash_set<int>& targetNodeList) {
     if (targetNodeList.empty()) {
       // TODO exception handling
     }
@@ -34,12 +34,12 @@ SparseBitVector AnalysisBase::MeetBitVectors(const int iterIdx, const absl::flat
       // TODO exception handling
     }
 
-    SparseBitVector meet_result = analysis_setting.may_or_must == "may"
-                                ? SparseBitVector()
-                                : SparseBitVector(interested_points.begin(), interested_points.end());
+    NodeSet meet_result = analysis_setting.may_or_must == may
+                                ? NodeSet()
+                                : NodeSet(interested_points.begin(), interested_points.end());
 
     for (auto t : targetNodeList) {
-      if (analysis_setting.may_or_must == "may") {
+      if (analysis_setting.may_or_must == may) {
         meet_result |= *(result_pointers[iterIdx][t]);
       } else {
         meet_result &= *(result_pointers[iterIdx][t]);
@@ -65,33 +65,33 @@ void AnalysisBase::Run(programl::ResultsEveryIteration* resultsOfAllIterations) 
             result_pointers.back());  // copy the result of the last iteration and push into result.
       }
 
-      SparseBitVector meeted_bitvector;
-      if (analysis_setting.forward_or_backward == "forward") {  // meet all predecessors
+      NodeSet meeted_bitvector;
+      if (analysis_setting.direction == forward) {  // meet all predecessors
         if (adjacencies.control_reverse_adj_list[cur_node_idx].empty()) {
           continue;
         }
-        meeted_bitvector = MeetBitVectors(cur_iter_idx - 1, adjacencies.control_reverse_adj_list[cur_node_idx]);
+        meeted_bitvector = MeetOperation(cur_iter_idx - 1, adjacencies.control_reverse_adj_list[cur_node_idx]);
 
       } else {  // meet all successors
         if (adjacencies.control_adj_list[cur_node_idx].empty()) {
           continue;
         }
-        meeted_bitvector = MeetBitVectors(cur_iter_idx - 1, adjacencies.control_adj_list[cur_node_idx]);
+        meeted_bitvector = MeetOperation(cur_iter_idx - 1, adjacencies.control_adj_list[cur_node_idx]);
       }
 
-      SparseBitVector temp = meeted_bitvector - kills[cur_node_idx];
-      SparseBitVector updated_bitvector = gens[cur_node_idx] | (temp);  // 这两句是真的有点奇怪，合并到一起就会提示有错
+      NodeSet temp = meeted_bitvector - kills[cur_node_idx];
+      NodeSet updated_bitvector = gens[cur_node_idx] | (temp);  // 这两句是真的有点奇怪，合并到一起就会提示有错
       if (updated_bitvector == *(result_pointers[cur_iter_idx][cur_node_idx])) {
         continue;
       }
       // if it changes, update the result
       // auto inserted = stored_result_set.insert(updated_bitvector);
       // result_pointers[cur_iter_idx][cur_node_idx] = &(*inserted.first);
-      stored_result_set.push_back(updated_bitvector);
-      result_pointers[cur_iter_idx][cur_node_idx] = &(stored_result_set.back());
+      stored_nodesets.push_back(updated_bitvector);
+      result_pointers[cur_iter_idx][cur_node_idx] = &(stored_nodesets.back());
 
       // add predecessors/successors to worklist
-      absl::flat_hash_set<int>& affected_list = analysis_setting.forward_or_backward == "forward"
+      absl::flat_hash_set<int>& affected_list = analysis_setting.direction == forward
                                             ? adjacencies.control_adj_list[cur_node_idx]
                                             : adjacencies.control_reverse_adj_list[cur_node_idx];
 
@@ -102,7 +102,7 @@ void AnalysisBase::Run(programl::ResultsEveryIteration* resultsOfAllIterations) 
 
     //接下来就是把result_pointers写到resultsOfAllIterations里
     //先写program_points和interested_points, 还有task_name
-    resultsOfAllIterations->set_task_name(analysis_setting.task_name);
+    resultsOfAllIterations->set_task_name(analysis_setting.TaskNameToString());
 
     programl::Int64List program_points_list, interested_points_list;
     program_points_list.mutable_value()->Add(program_points.begin(), program_points.end());
@@ -112,7 +112,7 @@ void AnalysisBase::Run(programl::ResultsEveryIteration* resultsOfAllIterations) 
     *(resultsOfAllIterations->mutable_interested_points()) = interested_points_list;
     
     for (int iter_idx = 0; iter_idx < result_pointers.size(); iter_idx ++){
-      const absl::flat_hash_map<int, SparseBitVector*>& result_pointers_one_iteration = result_pointers[iter_idx];
+      const absl::flat_hash_map<int, NodeSet*>& result_pointers_one_iteration = result_pointers[iter_idx];
       programl::ResultOneIteration result_one_iteration_message;
       for(const auto& it: result_pointers_one_iteration){
         // *(result_one_iteration.mutable_result_one_iteration())[it.first] = *(it.second);

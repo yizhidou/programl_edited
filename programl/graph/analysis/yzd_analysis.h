@@ -14,9 +14,9 @@ namespace yzd {
 
 class AnalysisBase {
  private:
-  // std::vector<std::vector<const SparseBitVector*>> result_pointers;
-  std::vector<absl::flat_hash_map<int, SparseBitVector*>> result_pointers;
-  std::vector<SparseBitVector> stored_result_set;
+  // each element of this vector corresponds to the result of one iteration 
+  std::vector<absl::flat_hash_map<int, NodeSet*>> result_pointers;
+  std::vector<NodeSet> stored_nodesets;
   std::queue<WorklistItem> work_list;
   int num_iteration = 0;
 
@@ -24,19 +24,19 @@ class AnalysisBase {
   const programl::ProgramGraph& program_graph;
   Adjacencies adjacencies;
 
-  absl::flat_hash_set<int> program_points;
-  absl::flat_hash_set<int> interested_points;
+  NodeSet program_points;
+  NodeSet interested_points;
   std::map<int, int> from_interested_points_to_bit_idx;
 
 
   AnalysisSetting analysis_setting;
-  std::map<int, SparseBitVector> gens;
-  std::map<int, SparseBitVector> kills;
+  std::map<int, NodeSet> gens;
+  std::map<int, NodeSet> kills;
 
  private:
   void InitSettings();
 
-  SparseBitVector MeetBitVectors(const int iterIdx, const absl::flat_hash_set<int>& targetNodeList);
+  NodeSet MeetOperation(const int iterIdx, const NodeSet& targetNodeList);
   
 
  public:
