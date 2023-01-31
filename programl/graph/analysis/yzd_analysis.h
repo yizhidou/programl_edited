@@ -8,6 +8,8 @@
 #include "programl/proto/util.pb.h"
 #include "yzd_utils.h"
 #include "labm8/cpp/logging.h"
+#include "labm8/cpp/status.h"
+// #include "labm8/cpp/statusor.h"
 #include "absl/container/flat_hash_map.h"
 
 namespace yzd {
@@ -34,7 +36,7 @@ class AnalysisBase {
   std::map<int, NodeSet> kills;
 
  private:
-  void InitSettings();
+  labm8::Status InitSettings();
 
   NodeSet MeetOperation(const int iterIdx, const NodeSet& targetNodeList);
   
@@ -46,7 +48,7 @@ class AnalysisBase {
     InitSettings();       // 这个主要作用往stored_result_set里加初始的结果
   }
 
-  void Run(programl::ResultsEveryIteration* resultsOfAllIterations);
+  labm8::Status Run(programl::ResultsEveryIteration* resultsOfAllIterations);
 
   int GetNumIteration() const { return num_iteration; }
 
