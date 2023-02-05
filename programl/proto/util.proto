@@ -144,9 +144,9 @@ message NodeIndexList {
 
 message ResultsEveryIteration {
   repeated ResultOneIteration results_every_iteration = 1;
-  optional Int64List program_points=2;
-  optional Int64List interested_points=3;
-  optional string task_name = 4;
+  Int64List program_points=2;
+  Int64List interested_points=3;
+  string task_name = 4;
 }
 
 message ResultOneIteration {

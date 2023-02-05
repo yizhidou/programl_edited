@@ -326,7 +326,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_util_2eproto::offsets[] PROTOB
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::programl::NodeIndexList, node_),
-  PROTOBUF_FIELD_OFFSET(::programl::ResultsEveryIteration, _has_bits_),
+  ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::programl::ResultsEveryIteration, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
@@ -335,10 +335,6 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_util_2eproto::offsets[] PROTOB
   PROTOBUF_FIELD_OFFSET(::programl::ResultsEveryIteration, program_points_),
   PROTOBUF_FIELD_OFFSET(::programl::ResultsEveryIteration, interested_points_),
   PROTOBUF_FIELD_OFFSET(::programl::ResultsEveryIteration, task_name_),
-  ~0u,
-  1,
-  2,
-  0,
   PROTOBUF_FIELD_OFFSET(::programl::ResultOneIteration_ResultMapEntry_DoNotUse, _has_bits_),
   PROTOBUF_FIELD_OFFSET(::programl::ResultOneIteration_ResultMapEntry_DoNotUse, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -365,9 +361,9 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 49, -1, sizeof(::programl::SourceFile)},
   { 57, -1, sizeof(::programl::Repo)},
   { 65, -1, sizeof(::programl::NodeIndexList)},
-  { 71, 80, sizeof(::programl::ResultsEveryIteration)},
-  { 84, 91, sizeof(::programl::ResultOneIteration_ResultMapEntry_DoNotUse)},
-  { 93, -1, sizeof(::programl::ResultOneIteration)},
+  { 71, -1, sizeof(::programl::ResultsEveryIteration)},
+  { 80, 87, sizeof(::programl::ResultOneIteration_ResultMapEntry_DoNotUse)},
+  { 89, -1, sizeof(::programl::ResultOneIteration)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -413,19 +409,18 @@ const char descriptor_table_protodef_util_2eproto[] PROTOBUF_SECTION_VARIABLE(pr
   "CXX\020\002\022\n\n\006OPENCL\020\003\022\t\n\005SWIFT\020\004\022\013\n\007HASKELL\020"
   "\005\022\013\n\007FORTRAN\020\006\"\?\n\004Repo\022\013\n\003url\030\001 \001(\t\022\014\n\004s"
   "ha1\030\002 \001(\t\022\034\n\024created_ms_timestamp\030\003 \001(\003\""
-  "\035\n\rNodeIndexList\022\014\n\004node\030\001 \003(\005\"\214\002\n\025Resul"
+  "\035\n\rNodeIndexList\022\014\n\004node\030\001 \003(\005\"\306\001\n\025Resul"
   "tsEveryIteration\022=\n\027results_every_iterat"
   "ion\030\001 \003(\0132\034.programl.ResultOneIteration\022"
-  "0\n\016program_points\030\002 \001(\0132\023.programl.Int64"
-  "ListH\000\210\001\001\0223\n\021interested_points\030\003 \001(\0132\023.p"
-  "rograml.Int64ListH\001\210\001\001\022\026\n\ttask_name\030\004 \001("
-  "\tH\002\210\001\001B\021\n\017_program_pointsB\024\n\022_interested"
-  "_pointsB\014\n\n_task_name\"\234\001\n\022ResultOneItera"
-  "tion\022\?\n\nresult_map\030\001 \003(\0132+.programl.Resu"
-  "ltOneIteration.ResultMapEntry\032E\n\016ResultM"
-  "apEntry\022\013\n\003key\030\001 \001(\003\022\"\n\005value\030\002 \001(\0132\023.pr"
-  "ograml.Int64List:\0028\001B*\n\014com.programlB\tUt"
-  "ilProtoP\001Z\nprogramlpb\370\001\001b\006proto3"
+  "+\n\016program_points\030\002 \001(\0132\023.programl.Int64"
+  "List\022.\n\021interested_points\030\003 \001(\0132\023.progra"
+  "ml.Int64List\022\021\n\ttask_name\030\004 \001(\t\"\234\001\n\022Resu"
+  "ltOneIteration\022\?\n\nresult_map\030\001 \003(\0132+.pro"
+  "graml.ResultOneIteration.ResultMapEntry\032"
+  "E\n\016ResultMapEntry\022\013\n\003key\030\001 \001(\003\022\"\n\005value\030"
+  "\002 \001(\0132\023.programl.Int64List:\0028\001B*\n\014com.pr"
+  "ogramlB\tUtilProtoP\001Z\nprogramlpb\370\001\001b\006prot"
+  "o3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_util_2eproto_deps[2] = {
   &::descriptor_table_features_2eproto,
@@ -447,7 +442,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_uti
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_util_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_util_2eproto = {
-  false, false, descriptor_table_protodef_util_2eproto, "util.proto", 1592,
+  false, false, descriptor_table_protodef_util_2eproto, "util.proto", 1522,
   &descriptor_table_util_2eproto_once, descriptor_table_util_2eproto_sccs, descriptor_table_util_2eproto_deps, 12, 2,
   schemas, file_default_instances, TableStruct_util_2eproto::offsets,
   file_level_metadata_util_2eproto, 12, file_level_enum_descriptors_util_2eproto, file_level_service_descriptors_util_2eproto,
@@ -3030,18 +3025,8 @@ void ResultsEveryIteration::InitAsDefaultInstance() {
 }
 class ResultsEveryIteration::_Internal {
  public:
-  using HasBits = decltype(std::declval<ResultsEveryIteration>()._has_bits_);
   static const ::programl::Int64List& program_points(const ResultsEveryIteration* msg);
-  static void set_has_program_points(HasBits* has_bits) {
-    (*has_bits)[0] |= 2u;
-  }
   static const ::programl::Int64List& interested_points(const ResultsEveryIteration* msg);
-  static void set_has_interested_points(HasBits* has_bits) {
-    (*has_bits)[0] |= 4u;
-  }
-  static void set_has_task_name(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
 };
 
 const ::programl::Int64List&
@@ -3057,14 +3042,12 @@ void ResultsEveryIteration::clear_program_points() {
     delete program_points_;
   }
   program_points_ = nullptr;
-  _has_bits_[0] &= ~0x00000002u;
 }
 void ResultsEveryIteration::clear_interested_points() {
   if (GetArena() == nullptr && interested_points_ != nullptr) {
     delete interested_points_;
   }
   interested_points_ = nullptr;
-  _has_bits_[0] &= ~0x00000004u;
 }
 ResultsEveryIteration::ResultsEveryIteration(::PROTOBUF_NAMESPACE_ID::Arena* arena)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena),
@@ -3075,11 +3058,10 @@ ResultsEveryIteration::ResultsEveryIteration(::PROTOBUF_NAMESPACE_ID::Arena* are
 }
 ResultsEveryIteration::ResultsEveryIteration(const ResultsEveryIteration& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _has_bits_(from._has_bits_),
       results_every_iteration_(from.results_every_iteration_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   task_name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (from._internal_has_task_name()) {
+  if (!from._internal_task_name().empty()) {
     task_name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from._internal_task_name(),
       GetArena());
   }
@@ -3139,31 +3121,20 @@ void ResultsEveryIteration::Clear() {
   (void) cached_has_bits;
 
   results_every_iteration_.Clear();
-  cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000007u) {
-    if (cached_has_bits & 0x00000001u) {
-      task_name_.ClearNonDefaultToEmpty();
-    }
-    if (cached_has_bits & 0x00000002u) {
-      if (GetArena() == nullptr && program_points_ != nullptr) {
-        delete program_points_;
-      }
-      program_points_ = nullptr;
-    }
-    if (cached_has_bits & 0x00000004u) {
-      if (GetArena() == nullptr && interested_points_ != nullptr) {
-        delete interested_points_;
-      }
-      interested_points_ = nullptr;
-    }
+  task_name_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  if (GetArena() == nullptr && program_points_ != nullptr) {
+    delete program_points_;
   }
-  _has_bits_.Clear();
+  program_points_ = nullptr;
+  if (GetArena() == nullptr && interested_points_ != nullptr) {
+    delete interested_points_;
+  }
+  interested_points_ = nullptr;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* ResultsEveryIteration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  _Internal::HasBits has_bits{};
   ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena(); (void)arena;
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
@@ -3220,7 +3191,6 @@ const char* ResultsEveryIteration::_InternalParse(const char* ptr, ::PROTOBUF_NA
     }  // switch
   }  // while
 success:
-  _has_bits_.Or(has_bits);
   return ptr;
 failure:
   ptr = nullptr;
@@ -3243,7 +3213,7 @@ failure:
   }
 
   // .programl.Int64List program_points = 2;
-  if (_internal_has_program_points()) {
+  if (this->has_program_points()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3251,7 +3221,7 @@ failure:
   }
 
   // .programl.Int64List interested_points = 3;
-  if (_internal_has_interested_points()) {
+  if (this->has_interested_points()) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(
@@ -3259,7 +3229,7 @@ failure:
   }
 
   // string task_name = 4;
-  if (_internal_has_task_name()) {
+  if (this->task_name().size() > 0) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_task_name().data(), static_cast<int>(this->_internal_task_name().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -3291,30 +3261,27 @@ size_t ResultsEveryIteration::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000007u) {
-    // string task_name = 4;
-    if (cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-          this->_internal_task_name());
-    }
-
-    // .programl.Int64List program_points = 2;
-    if (cached_has_bits & 0x00000002u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *program_points_);
-    }
-
-    // .programl.Int64List interested_points = 3;
-    if (cached_has_bits & 0x00000004u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *interested_points_);
-    }
-
+  // string task_name = 4;
+  if (this->task_name().size() > 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_task_name());
   }
+
+  // .programl.Int64List program_points = 2;
+  if (this->has_program_points()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *program_points_);
+  }
+
+  // .programl.Int64List interested_points = 3;
+  if (this->has_interested_points()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *interested_points_);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
         _internal_metadata_, total_size, &_cached_size_);
@@ -3347,17 +3314,14 @@ void ResultsEveryIteration::MergeFrom(const ResultsEveryIteration& from) {
   (void) cached_has_bits;
 
   results_every_iteration_.MergeFrom(from.results_every_iteration_);
-  cached_has_bits = from._has_bits_[0];
-  if (cached_has_bits & 0x00000007u) {
-    if (cached_has_bits & 0x00000001u) {
-      _internal_set_task_name(from._internal_task_name());
-    }
-    if (cached_has_bits & 0x00000002u) {
-      _internal_mutable_program_points()->::programl::Int64List::MergeFrom(from._internal_program_points());
-    }
-    if (cached_has_bits & 0x00000004u) {
-      _internal_mutable_interested_points()->::programl::Int64List::MergeFrom(from._internal_interested_points());
-    }
+  if (from.task_name().size() > 0) {
+    _internal_set_task_name(from._internal_task_name());
+  }
+  if (from.has_program_points()) {
+    _internal_mutable_program_points()->::programl::Int64List::MergeFrom(from._internal_program_points());
+  }
+  if (from.has_interested_points()) {
+    _internal_mutable_interested_points()->::programl::Int64List::MergeFrom(from._internal_interested_points());
   }
 }
 
@@ -3382,7 +3346,6 @@ bool ResultsEveryIteration::IsInitialized() const {
 void ResultsEveryIteration::InternalSwap(ResultsEveryIteration* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-  swap(_has_bits_[0], other->_has_bits_[0]);
   results_every_iteration_.InternalSwap(&other->results_every_iteration_);
   task_name_.Swap(&other->task_name_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<

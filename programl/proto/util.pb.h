@@ -1954,10 +1954,6 @@ class ResultsEveryIteration PROTOBUF_FINAL :
       results_every_iteration() const;
 
   // string task_name = 4;
-  bool has_task_name() const;
-  private:
-  bool _internal_has_task_name() const;
-  public:
   void clear_task_name();
   const std::string& task_name() const;
   void set_task_name(const std::string& value);
@@ -2016,12 +2012,11 @@ class ResultsEveryIteration PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::programl::ResultOneIteration > results_every_iteration_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr task_name_;
   ::programl::Int64List* program_points_;
   ::programl::Int64List* interested_points_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_util_2eproto;
 };
 // -------------------------------------------------------------------
@@ -3587,9 +3582,7 @@ ResultsEveryIteration::results_every_iteration() const {
 
 // .programl.Int64List program_points = 2;
 inline bool ResultsEveryIteration::_internal_has_program_points() const {
-  bool value = (_has_bits_[0] & 0x00000002u) != 0;
-  PROTOBUF_ASSUME(!value || program_points_ != nullptr);
-  return value;
+  return this != internal_default_instance() && program_points_ != nullptr;
 }
 inline bool ResultsEveryIteration::has_program_points() const {
   return _internal_has_program_points();
@@ -3610,14 +3603,14 @@ inline void ResultsEveryIteration::unsafe_arena_set_allocated_program_points(
   }
   program_points_ = program_points;
   if (program_points) {
-    _has_bits_[0] |= 0x00000002u;
+    
   } else {
-    _has_bits_[0] &= ~0x00000002u;
+    
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:programl.ResultsEveryIteration.program_points)
 }
 inline ::programl::Int64List* ResultsEveryIteration::release_program_points() {
-  _has_bits_[0] &= ~0x00000002u;
+  
   ::programl::Int64List* temp = program_points_;
   program_points_ = nullptr;
   if (GetArena() != nullptr) {
@@ -3627,13 +3620,13 @@ inline ::programl::Int64List* ResultsEveryIteration::release_program_points() {
 }
 inline ::programl::Int64List* ResultsEveryIteration::unsafe_arena_release_program_points() {
   // @@protoc_insertion_point(field_release:programl.ResultsEveryIteration.program_points)
-  _has_bits_[0] &= ~0x00000002u;
+  
   ::programl::Int64List* temp = program_points_;
   program_points_ = nullptr;
   return temp;
 }
 inline ::programl::Int64List* ResultsEveryIteration::_internal_mutable_program_points() {
-  _has_bits_[0] |= 0x00000002u;
+  
   if (program_points_ == nullptr) {
     auto* p = CreateMaybeMessage<::programl::Int64List>(GetArena());
     program_points_ = p;
@@ -3656,9 +3649,9 @@ inline void ResultsEveryIteration::set_allocated_program_points(::programl::Int6
       program_points = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, program_points, submessage_arena);
     }
-    _has_bits_[0] |= 0x00000002u;
+    
   } else {
-    _has_bits_[0] &= ~0x00000002u;
+    
   }
   program_points_ = program_points;
   // @@protoc_insertion_point(field_set_allocated:programl.ResultsEveryIteration.program_points)
@@ -3666,9 +3659,7 @@ inline void ResultsEveryIteration::set_allocated_program_points(::programl::Int6
 
 // .programl.Int64List interested_points = 3;
 inline bool ResultsEveryIteration::_internal_has_interested_points() const {
-  bool value = (_has_bits_[0] & 0x00000004u) != 0;
-  PROTOBUF_ASSUME(!value || interested_points_ != nullptr);
-  return value;
+  return this != internal_default_instance() && interested_points_ != nullptr;
 }
 inline bool ResultsEveryIteration::has_interested_points() const {
   return _internal_has_interested_points();
@@ -3689,14 +3680,14 @@ inline void ResultsEveryIteration::unsafe_arena_set_allocated_interested_points(
   }
   interested_points_ = interested_points;
   if (interested_points) {
-    _has_bits_[0] |= 0x00000004u;
+    
   } else {
-    _has_bits_[0] &= ~0x00000004u;
+    
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:programl.ResultsEveryIteration.interested_points)
 }
 inline ::programl::Int64List* ResultsEveryIteration::release_interested_points() {
-  _has_bits_[0] &= ~0x00000004u;
+  
   ::programl::Int64List* temp = interested_points_;
   interested_points_ = nullptr;
   if (GetArena() != nullptr) {
@@ -3706,13 +3697,13 @@ inline ::programl::Int64List* ResultsEveryIteration::release_interested_points()
 }
 inline ::programl::Int64List* ResultsEveryIteration::unsafe_arena_release_interested_points() {
   // @@protoc_insertion_point(field_release:programl.ResultsEveryIteration.interested_points)
-  _has_bits_[0] &= ~0x00000004u;
+  
   ::programl::Int64List* temp = interested_points_;
   interested_points_ = nullptr;
   return temp;
 }
 inline ::programl::Int64List* ResultsEveryIteration::_internal_mutable_interested_points() {
-  _has_bits_[0] |= 0x00000004u;
+  
   if (interested_points_ == nullptr) {
     auto* p = CreateMaybeMessage<::programl::Int64List>(GetArena());
     interested_points_ = p;
@@ -3735,25 +3726,17 @@ inline void ResultsEveryIteration::set_allocated_interested_points(::programl::I
       interested_points = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, interested_points, submessage_arena);
     }
-    _has_bits_[0] |= 0x00000004u;
+    
   } else {
-    _has_bits_[0] &= ~0x00000004u;
+    
   }
   interested_points_ = interested_points;
   // @@protoc_insertion_point(field_set_allocated:programl.ResultsEveryIteration.interested_points)
 }
 
 // string task_name = 4;
-inline bool ResultsEveryIteration::_internal_has_task_name() const {
-  bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
-}
-inline bool ResultsEveryIteration::has_task_name() const {
-  return _internal_has_task_name();
-}
 inline void ResultsEveryIteration::clear_task_name() {
   task_name_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-  _has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& ResultsEveryIteration::task_name() const {
   // @@protoc_insertion_point(field_get:programl.ResultsEveryIteration.task_name)
@@ -3771,46 +3754,42 @@ inline const std::string& ResultsEveryIteration::_internal_task_name() const {
   return task_name_.Get();
 }
 inline void ResultsEveryIteration::_internal_set_task_name(const std::string& value) {
-  _has_bits_[0] |= 0x00000001u;
+  
   task_name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
 }
 inline void ResultsEveryIteration::set_task_name(std::string&& value) {
-  _has_bits_[0] |= 0x00000001u;
+  
   task_name_.Set(
     &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
   // @@protoc_insertion_point(field_set_rvalue:programl.ResultsEveryIteration.task_name)
 }
 inline void ResultsEveryIteration::set_task_name(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
-  _has_bits_[0] |= 0x00000001u;
+  
   task_name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
               GetArena());
   // @@protoc_insertion_point(field_set_char:programl.ResultsEveryIteration.task_name)
 }
 inline void ResultsEveryIteration::set_task_name(const char* value,
     size_t size) {
-  _has_bits_[0] |= 0x00000001u;
+  
   task_name_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
   // @@protoc_insertion_point(field_set_pointer:programl.ResultsEveryIteration.task_name)
 }
 inline std::string* ResultsEveryIteration::_internal_mutable_task_name() {
-  _has_bits_[0] |= 0x00000001u;
+  
   return task_name_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
 inline std::string* ResultsEveryIteration::release_task_name() {
   // @@protoc_insertion_point(field_release:programl.ResultsEveryIteration.task_name)
-  if (!_internal_has_task_name()) {
-    return nullptr;
-  }
-  _has_bits_[0] &= ~0x00000001u;
-  return task_name_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  return task_name_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
 inline void ResultsEveryIteration::set_allocated_task_name(std::string* task_name) {
   if (task_name != nullptr) {
-    _has_bits_[0] |= 0x00000001u;
+    
   } else {
-    _has_bits_[0] &= ~0x00000001u;
+    
   }
   task_name_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), task_name,
       GetArena());
