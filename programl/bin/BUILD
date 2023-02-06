@@ -34,6 +34,7 @@ filegroup(
         # ":llvm2graph-3.8",
         # ":llvm2graph-6",
         ":xla2graph",
+        ":analyze",
         # Not used by current Python API: ":analyze",
         # Not used by current Python API: ":graph2cdfg",
         # Not used by current Python API: ":graph2seq",

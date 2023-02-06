@@ -13,7 +13,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
+// #pragma once
 #include "programl/graph/analysis/analysis.h"
 
 #include "programl/graph/analysis/datadep.h"
@@ -21,6 +21,8 @@
 #include "programl/graph/analysis/liveness.h"
 #include "programl/graph/analysis/reachability.h"
 #include "programl/graph/analysis/subexpressions.h"
+#include "programl/graph/analysis/yzd_liveness.h"
+// #include "programl/graph/analysis/yzd_utils.h"
 
 using labm8::Status;
 namespace error = labm8::error;
@@ -47,6 +49,23 @@ Status RunAnalysis(const string& analysisName, const ProgramGraph& graph,
     return Run<DatadepAnalysis>(graph, featuresList);
   } else if (analysisName == "subexpressions") {
     return Run<DatadepAnalysis>(graph, featuresList);
+  } else {
+    return Status(error::Code::INVALID_ARGUMENT, "Invalid analysis: {}", analysisName);
+  }
+}
+
+template <typename T>
+Status YZDRun(yzd::AnalysisSetting setting ,const ProgramGraph& graph, ResultsEveryIteration* resultsOfAllIterations) {
+  T analysis(graph, setting);
+  return analysis.Run(resultsOfAllIterations);
+}
+
+Status RunAnalysis(const string& analysisName, int maxIteration, const ProgramGraph& graph,
+                   ResultsEveryIteration* resultsOfAllIterations) {
+  // yzd::AnalysisSetting yzd_setting;
+  if (analysisName == "yzd_liveness") {
+    yzd::AnalysisSetting yzd_setting(yzd::TaskName::yzd_liveness, maxIteration);
+    return YZDRun<yzd::YZDLiveness>(yzd_setting, graph, resultsOfAllIterations);
   } else {
     return Status(error::Code::INVALID_ARGUMENT, "Invalid analysis: {}", analysisName);
   }

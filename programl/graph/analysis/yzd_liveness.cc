@@ -1,14 +1,9 @@
 #include <cassert>
 
-#include "yzd_analysis.h"
+#include "yzd_liveness.h"
 
-namespace yzd
-
-{
-class YZDLiveness : public yzd::AnalysisBase {
- protected:
-  virtual void ParseProgramGraph()
-      override {  // 需要把program_points 和 interested_points 给算好; adjacencies也算好
+namespace yzd{
+void YZDLiveness::ParseProgramGraph() {  // 需要把program_points 和 interested_points 给算好; adjacencies也算好
     for (const auto& edge : program_graph.edge()) {
       if (edge.flow() == programl::Edge::CONTROL) {
         adjacencies.control_adj_list[edge.source()].insert(edge.target());
@@ -37,5 +32,4 @@ class YZDLiveness : public yzd::AnalysisBase {
       }
     }
   }
-};
 }  // namespace yzd

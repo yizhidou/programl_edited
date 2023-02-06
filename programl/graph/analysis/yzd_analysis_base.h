@@ -1,12 +1,12 @@
 #pragma once
 #include <queue>
 #include <string>
-#include <utility>
+// #include <utility>
 #include <vector>
 
+#include "yzd_utils.h"
 #include "programl/proto/program_graph.pb.h"
 #include "programl/proto/util.pb.h"
-#include "yzd_utils.h"
 #include "labm8/cpp/logging.h"
 #include "labm8/cpp/status.h"
 // #include "labm8/cpp/statusor.h"
@@ -57,7 +57,7 @@ class AnalysisBase {
   int GetNumInterestedPoints() const { return interested_points.size(); }
 
  protected:
-  virtual void ParseProgramGraph();
+  virtual void ParseProgramGraph() = 0;
 
 };
 }  // namespace programl

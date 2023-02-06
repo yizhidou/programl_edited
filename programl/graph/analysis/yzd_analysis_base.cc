@@ -1,9 +1,8 @@
-#pragma once
-#include "yzd_analysis.h"
-
+// #pragma once
+#include "yzd_analysis_base.h"
 #include <cassert>
 // #include "yzd_utils.h"
-#include "labm8/cpp/logging.h"
+// #include "labm8/cpp/logging.h"
 
 namespace yzd {
 

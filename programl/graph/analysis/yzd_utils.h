@@ -1,10 +1,10 @@
-#include <cstddef>
-#include <iostream>
-#include <queue>
-#include <string>
-#include <utility>
-#include <vector>
-
+// #include <cstddef>
+// #include <iostream>
+// #include <queue>
+// #include <string>
+// #include <utility>
+// #include <vector>
+#pragma once
 #include "absl/container/flat_hash_map.h"
 #include "absl/container/flat_hash_set.h"
 
@@ -14,6 +14,7 @@ using NodeSet = absl::flat_hash_set<int>;
 struct WorklistItem {
   int iter_idx;
   int node_idx;
+  WorklistItem(int iterIdx, int nodeIdx): iter_idx(iterIdx), node_idx(nodeIdx) {}
 };
 
 struct Adjacencies {

@@ -28,6 +28,9 @@ namespace analysis {
 labm8::Status RunAnalysis(const string& analysisName, const ProgramGraph& graph,
                           ProgramGraphFeaturesList* featuresList);
 
+labm8::Status RunAnalysis(const string& analysisName, int maxIteration, const ProgramGraph& graph,
+                   ResultsEveryIteration* resultsOfAllIterations);
+
 }  // namespace analysis
 }  // namespace graph
 }  // namespace programl

@@ -27,6 +27,7 @@ cc_library(
         ":liveness",
         ":reachability",
         ":subexpressions",
+        ":yzd_liveness",
         "//programl/proto:programl_cc",
         "@labm8//labm8/cpp:status",
     ],
@@ -118,4 +119,42 @@ cc_library(
         "@labm8//labm8/cpp:logging",
         "@labm8//labm8/cpp:status",
     ],
+)
+
+####################################### yzd added ############################################
+
+cc_library(
+    name = "yzd_utils",
+    srcs = ["yzd_utils.cc"],
+    hdrs = ["yzd_utils.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/container:flat_hash_set",
+    ],
+)
+
+cc_library(
+    name = "yzd_analysis_base",
+    srcs = ["yzd_analysis_base.cc"],
+    hdrs = ["yzd_analysis_base.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":yzd_utils",
+        "//programl/proto:programl_cc",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/container:flat_hash_set",
+        "@labm8//labm8/cpp:logging",
+        "@labm8//labm8/cpp:status",
+    ],
+)
+
+cc_library(
+    name = "yzd_liveness",
+    srcs = ["yzd_liveness.cc"],
+    hdrs = ["yzd_liveness.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":yzd_analysis_base"
+    ]
 )

@@ -15,6 +15,7 @@
 // limitations under the License.
 #include <iomanip>
 #include <iostream>
+#include <cstdlib>
 
 #include "labm8/cpp/app.h"
 #include "labm8/cpp/logging.h"
@@ -34,26 +35,48 @@ Usage:
 
     analyze <analysis> < /path/to/program_graph.pb)";
 
+const char* usage_yzd = R"(Run a yzd data-flow analysis on a program graph.
+
+Usage:
+
+    analyze <analysis> <max_iteration> < /path/to/program_graph.pb)";
+
 int main(int argc, char** argv) {
   gflags::SetVersionString(PROGRAML_VERSION);
   labm8::InitApp(&argc, &argv, usage);
 
-  if (argc != 2) {
-    std::cerr << usage;
-    return 4;
-  }
-
   programl::ProgramGraph graph;
   programl::util::ParseStdinOrDie(&graph);
 
-  programl::ProgramGraphFeaturesList featuresList;
-  Status status = programl::graph::analysis::RunAnalysis(argv[1], graph, &featuresList);
-  if (!status.ok()) {
-    LOG(ERROR) << status.error_message();
+  Status status;
+  if ((argv[1] == "reachability") || (argv[1] == "dominance") || (argv[1] == "liveness") ||
+      (argv[1] == "datadep" || (argv[1] == "subexpressions"))) {
+    if (argc != 2) {
+      std::cerr << usage;
+      return 4;
+    }
+
+    programl::ProgramGraphFeaturesList featuresList;
+    status = programl::graph::analysis::RunAnalysis(argv[1], graph, &featuresList);
+    if (!status.ok()) {
+      LOG(ERROR) << status.error_message();
+      return 4;
+    }
+    programl::util::WriteStdout(featuresList);
+  } else {
+    if (argc != 3) {
+    std::cerr << usage_yzd;
     return 4;
   }
-
-  programl::util::WriteStdout(featuresList);
+    programl::ResultsEveryIteration resultsEveryIterationMessage;
+    int maxIteration = std::atoi(argv[2]);
+    status = programl::graph::analysis::RunAnalysis(argv[1], maxIteration, graph, &resultsEveryIterationMessage);
+    if (!status.ok()) {
+      LOG(ERROR) << status.error_message();
+      return 4;
+    }
+    programl::util::WriteStdout(resultsEveryIterationMessage);
+  }
 
   return 0;
 }
