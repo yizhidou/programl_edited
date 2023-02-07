@@ -4,10 +4,7 @@ namespace yzd {
 class YZDLiveness : public AnalysisBase {
  public:
   YZDLiveness(const programl::ProgramGraph& pg, const AnalysisSetting& s)
-      : AnalysisBase(pg, s) {
-        ParseProgramGraph();
-        
-      }
+      : AnalysisBase(pg, s) {}
 
  protected:
   virtual void ParseProgramGraph() override;

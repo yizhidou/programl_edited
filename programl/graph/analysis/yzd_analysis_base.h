@@ -43,10 +43,7 @@ class AnalysisBase {
 
  public:
   explicit AnalysisBase(const programl::ProgramGraph& pg, const AnalysisSetting& s)
-      : program_graph(pg), analysis_setting(s) {
-    ParseProgramGraph();  // 需要把program_points 和 interested_points 给算好; adjacencies也算好
-    InitSettings();       // 这个主要作用往stored_result_set里加初始的结果
-  }
+      : program_graph(pg), analysis_setting(s) {}
 
   labm8::Status Run(programl::ResultsEveryIteration* resultsOfAllIterations);
 

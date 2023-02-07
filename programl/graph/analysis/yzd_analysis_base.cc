@@ -1,5 +1,6 @@
 // #pragma once
 #include "yzd_analysis_base.h"
+
 #include <cassert>
 // #include "yzd_utils.h"
 // #include "labm8/cpp/logging.h"
@@ -10,7 +11,7 @@ labm8::Status AnalysisBase::InitSettings() {
   // 这里应该check一下num_point_interested和num_point_interested这两个数值得是大于0的
   if (interested_points.size() || program_points.size()) {
     return labm8::Status(labm8::error::FAILED_PRECONDITION,
-                         "The graph has either none program points or none interested points.");
+                         "The graph has either none program points or none interested points");
   }
 
   // add result of iteration 0 into result_pointers.
@@ -50,6 +51,14 @@ NodeSet AnalysisBase::MeetOperation(const int iterIdx,
 }
 
 labm8::Status AnalysisBase::Run(programl::ResultsEveryIteration* resultsOfAllIterations) {
+  ParseProgramGraph();  // 需要把program_points 和 interested_points 给算好;
+                        // adjacencies也算好。这是一个纯虚函数。
+  labm8::Status init_setting_status =
+      InitSettings();  // 这个主要作用往stored_result_set里加初始的结果
+  if (!init_setting_status.ok()) {
+    return init_setting_status;
+  }
+
   // add all nodes in worklist
   for (const int pp : program_points) {
     work_list.emplace(1, pp);
