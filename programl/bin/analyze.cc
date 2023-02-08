@@ -45,19 +45,25 @@ int main(int argc, char** argv) {
   gflags::SetVersionString(PROGRAML_VERSION);
   labm8::InitApp(&argc, &argv, usage);
 
+  if (argc < 2){
+    std::cerr << "at least one argument needed!";
+    return 4;
+  }
+
   programl::ProgramGraph graph;
   programl::util::ParseStdinOrDie(&graph);
+  std::string task_name(argv[1]);
 
   Status status;
-  if ((argv[1] == "reachability") || (argv[1] == "dominance") || (argv[1] == "liveness") ||
-      (argv[1] == "datadep" || (argv[1] == "subexpressions"))) {
+  if ((task_name == "reachability") || (task_name == "dominance") || (task_name == "liveness") ||
+      (task_name == "datadep" || (task_name == "subexpressions"))) {
     if (argc != 2) {
       std::cerr << usage;
       return 4;
     }
 
     programl::ProgramGraphFeaturesList featuresList;
-    status = programl::graph::analysis::RunAnalysis(argv[1], graph, &featuresList);
+    status = programl::graph::analysis::RunAnalysis(task_name, graph, &featuresList);
     if (!status.ok()) {
       LOG(ERROR) << status.error_message();
       return 4;
@@ -70,7 +76,7 @@ int main(int argc, char** argv) {
   }
     programl::ResultsEveryIteration resultsEveryIterationMessage;
     int maxIteration = std::atoi(argv[2]);
-    status = programl::graph::analysis::RunAnalysis(argv[1], maxIteration, graph, &resultsEveryIterationMessage);
+    status = programl::graph::analysis::RunAnalysis(task_name, maxIteration, graph, &resultsEveryIterationMessage);
     if (!status.ok()) {
       LOG(ERROR) << status.error_message();
       return 4;

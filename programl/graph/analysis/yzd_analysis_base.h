@@ -17,7 +17,7 @@ namespace yzd {
 class AnalysisBase {
  private:
   // each element of this vector corresponds to the result of one iteration 
-  std::vector<absl::flat_hash_map<int, NodeSet*>> result_pointers;
+  std::vector<absl::flat_hash_map<int, int>> result_pointers;
   std::vector<NodeSet> stored_nodesets;
   std::queue<WorklistItem> work_list;
   int num_iteration = 0;

@@ -34,7 +34,7 @@ void YZDLiveness::ParseProgramGraph() {  // 需要把program_points 和 interest
         gens[edge.target()].insert(edge.source());
       } else {
         assert((program_graph.node(edge.source()).type() == programl::Node::CONSTANT) &&
-               (program_graph.node(edge.source()).type() == programl::Node::INSTRUCTION) &&
+               (program_graph.node(edge.target()).type() == programl::Node::INSTRUCTION) &&
                "I suppose there should not be the fourth way of generating DataEdge...");
       }
     }
