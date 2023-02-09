@@ -25,6 +25,8 @@
 #include "programl/util/stdin_fmt.h"
 #include "programl/util/stdout_fmt.h"
 #include "programl/version.h"
+#include "programl/graph/analysis/yzd_liveness.h"
+#include "programl/graph/analysis/yzd_utils.h"
 
 using labm8::Status;
 namespace error = labm8::error;
@@ -76,7 +78,9 @@ int main(int argc, char** argv) {
   }
     programl::ResultsEveryIteration resultsEveryIterationMessage;
     int maxIteration = std::atoi(argv[2]);
-    status = programl::graph::analysis::RunAnalysis(task_name, maxIteration, graph, &resultsEveryIterationMessage);
+    // status = programl::graph::analysis::RunAnalysis(task_name, maxIteration, graph, &resultsEveryIterationMessage);
+    yzd::AnalysisSetting yzd_setting(yzd::TaskName::yzd_liveness, maxIteration);
+    status = yzd::YZDLiveness(graph, yzd_setting).RunAndValidate();
     if (!status.ok()) {
       LOG(ERROR) << status.error_message();
       return 4;

@@ -144,8 +144,9 @@ cc_library(
         "//programl/proto:programl_cc",
         "@com_google_absl//absl/container:flat_hash_map",
         "@com_google_absl//absl/container:flat_hash_set",
-        "@labm8//labm8/cpp:logging",
-        "@labm8//labm8/cpp:status",
+        # "@labm8//labm8/cpp:logging",
+        # "@labm8//labm8/cpp:status",
+        "@labm8//labm8/cpp:status_macros",
     ],
 )
 
@@ -155,6 +156,7 @@ cc_library(
     hdrs = ["yzd_liveness.h"],
     visibility = ["//visibility:public"],
     deps = [
-        ":yzd_analysis_base"
+        ":yzd_analysis_base",
+        ":liveness"
     ]
 )

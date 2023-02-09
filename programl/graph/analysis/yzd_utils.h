@@ -1,10 +1,6 @@
-// #include <cstddef>
-// #include <iostream>
-// #include <queue>
-// #include <string>
-// #include <utility>
-// #include <vector>
 #pragma once
+#include <iostream>
+
 #include "absl/container/flat_hash_map.h"
 #include "absl/container/flat_hash_set.h"
 
@@ -27,6 +23,8 @@ NodeSet operator|=(NodeSet& lhs, NodeSet& rhs);
 NodeSet operator&(const NodeSet& lhs, const NodeSet& rhs);
 NodeSet& operator&=(NodeSet& lhs, const NodeSet& rhs);
 NodeSet operator-(const NodeSet& lhs, const NodeSet& rhs);
+
+std::ostream& operator<<(std::ostream& os, const NodeSet& nodeSet);
 
 enum TaskName { yzd_liveness };
 enum Direction { forward, backward };

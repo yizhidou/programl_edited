@@ -3,6 +3,8 @@
 
 #include <cassert>
 #include <iostream>
+
+#include "labm8/cpp/status_macros.h"
 // #include "yzd_utils.h"
 // #include "labm8/cpp/logging.h"
 
@@ -52,14 +54,15 @@ NodeSet AnalysisBase::MeetOperation(const int iterIdx,
   return meet_result;
 }
 
-labm8::Status AnalysisBase::Run(programl::ResultsEveryIteration* resultsOfAllIterations) {
+labm8::Status AnalysisBase::Init() {
   ParseProgramGraph();  // 需要把program_points 和 interested_points 给算好;
                         // adjacencies也算好。这是一个纯虚函数。
-  labm8::Status init_setting_status =
-      InitSettings();  // 这个主要作用往stored_result_set里加初始的结果
-  if (!init_setting_status.ok()) {
-    return init_setting_status;
-  }
+  // labm8::Status init_setting_status =
+  //     InitSettings();  // 这个主要作用往stored_result_set里加初始的结果
+  // if (!init_setting_status.ok()) {
+  //   return init_setting_status;
+  // }
+  RETURN_IF_ERROR(InitSettings());
 
   // add all nodes in worklist
   for (const int pp : program_points) {
@@ -118,6 +121,15 @@ labm8::Status AnalysisBase::Run(programl::ResultsEveryIteration* resultsOfAllIte
       work_list.emplace(cur_iter_idx + 1, affted_node);
     }
   }
+  return labm8::Status::OK;
+}
+
+labm8::Status AnalysisBase::Run(programl::ResultsEveryIteration* resultsOfAllIterations) {
+  // labm8::Status init_status = Init(); 
+  // if (!init_status.ok()) {
+  //   return init_status;
+  // }
+  RETURN_IF_ERROR(Init());
 
   // 接下来就是把result_pointers写到resultsOfAllIterations里
   resultsOfAllIterations->set_task_name(analysis_setting.TaskNameToString());
@@ -134,7 +146,7 @@ labm8::Status AnalysisBase::Run(programl::ResultsEveryIteration* resultsOfAllIte
     programl::ResultOneIteration result_one_iteration_message;
     for (const auto& it : result_pointer) {
       // *(result_one_iteration.mutable_result_one_iteration())[it.first] = *(it.second);
-      const NodeSet & tmp_nodeset = stored_nodesets[it.second];
+      const NodeSet& tmp_nodeset = stored_nodesets[it.second];
       programl::Int64List nodeset_message;
       nodeset_message.mutable_value()->Add(
           tmp_nodeset.begin(),
