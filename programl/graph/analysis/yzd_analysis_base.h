@@ -58,6 +58,7 @@ class AnalysisBase {
     }
     return result;
   }
+  std::vector<NodeSet> GetStoredNodeSets() const { return stored_nodesets; }
 
  protected:
   virtual void ParseProgramGraph() = 0;

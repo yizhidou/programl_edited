@@ -92,7 +92,7 @@ labm8::Status AnalysisBase::Init() {
     //           << "; &stored_nodesets.back():" << &stored_nodesets.back()
     //           << "; stored_nodesets.size(): " << stored_nodesets.size() << std::endl;
     NodeSet meeted_nodeset = stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]];
-    std::cout << "till line 93, cur_node_idx: " << cur_node_idx << std::endl;
+    // std::cout << "till line 93, cur_node_idx: " << cur_node_idx << std::endl;
     const auto& neighbor_nodes =
         (analysis_setting.direction == forward)
             ? adjacencies.control_reverse_adj_list[cur_node_idx]  // meet all predecessors
@@ -103,11 +103,12 @@ labm8::Status AnalysisBase::Init() {
 
     NodeSet temp = meeted_nodeset - kills[cur_node_idx];
     NodeSet updated_bitvector =
-        gens[cur_node_idx] | (temp);  // 这两句是真的有点奇怪，合并到一起就会提示有错
+        gens[cur_node_idx] | temp;  // 这两句是真的有点奇怪，合并到一起就会提示有错
     if (updated_bitvector == stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]]) {
       continue;
     }
     // if it changes, update the result
+    std::cout << "yzd_analysis_base.cc line 111: the updated updated_bitvector is: " << updated_bitvector << std::endl;
     stored_nodesets.push_back(updated_bitvector);
     result_pointers[cur_iter_idx][cur_node_idx] = stored_nodesets.size() - 1;
 

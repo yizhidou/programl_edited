@@ -51,10 +51,15 @@ NodeSet operator-(const NodeSet& lhs, const NodeSet& rhs) {
 }
 
 std::ostream& operator<<(std::ostream& os, const NodeSet& nodeSet) {
+  if (nodeSet.size() == 0) {
+    os << "[]";
+    return os;
+  }
   os << "[";
   for (int node_idx : nodeSet) {
     os << " " << node_idx;
   }
-  os << "]" << std::endl;
+  os << "]";
+  return os;
 }
 }  // namespace yzd
