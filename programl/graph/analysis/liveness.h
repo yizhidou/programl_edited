@@ -45,10 +45,18 @@ class LivenessAnalysis : public RoodNodeDataFlowAnalysis {
 
   const std::vector<absl::flat_hash_set<int>>& live_out_sets() const { return liveOutSets_; }
 
+  // yzd added
+  const std::vector<std::vector<int>>& GetGens() const { return gens; }
+  const std::vector<std::vector<int>>& GetKills() const { return kills; }
+
  private:
   // Live-in and live-out sets that are computed during Init().
   std::vector<absl::flat_hash_set<int>> liveInSets_;
   std::vector<absl::flat_hash_set<int>> liveOutSets_;
+
+  // yzd added
+  std::vector<std::vector<int>> gens;
+  std::vector<std::vector<int>> kills;
 };
 
 }  // namespace analysis

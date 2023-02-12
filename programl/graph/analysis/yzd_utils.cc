@@ -62,4 +62,24 @@ std::ostream& operator<<(std::ostream& os, const NodeSet& nodeSet) {
   os << "]";
   return os;
 }
+
+bool operator==(const NodeSet& ns, const std::vector<int>& vi){
+  NodeSet tmp_ns(vi.begin(), vi.end());
+  return ns == tmp_ns;
+}
+
+std::ostream& operator<<(std::ostream& os, const std::vector<int>& intVec){
+  if( intVec.size() == 0){
+    os << "[]";
+    return os;
+  }
+  os << "[";
+  for (int t : intVec) {
+    os << " " << t;
+  }
+  os << "]";
+  return os;
+}
+
 }  // namespace yzd
+

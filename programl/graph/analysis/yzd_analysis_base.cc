@@ -79,7 +79,7 @@ labm8::Status AnalysisBase::Init() {
     }
 
     if (cur_iter_idx > result_pointers.size() - 1) {
-      std::cout << "till line 80, cur_iter_idx: " << cur_iter_idx << std::endl;
+      // std::cout << "yzd_analysis_base.cc, till line 80, cur_iter_idx: " << cur_iter_idx << std::endl;
       result_pointers.push_back(
           result_pointers.back());  // copy the result of the last iteration and push into result.
     }
@@ -108,7 +108,7 @@ labm8::Status AnalysisBase::Init() {
       continue;
     }
     // if it changes, update the result
-    std::cout << "yzd_analysis_base.cc line 111: the updated updated_bitvector is: " << updated_bitvector << std::endl;
+    // std::cout << "yzd_analysis_base.cc line 111: the updated updated_bitvector is: " << updated_bitvector << std::endl;
     stored_nodesets.push_back(updated_bitvector);
     result_pointers[cur_iter_idx][cur_node_idx] = stored_nodesets.size() - 1;
 

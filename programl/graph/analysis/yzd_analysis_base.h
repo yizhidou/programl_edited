@@ -29,8 +29,8 @@ class AnalysisBase {
   NodeSet interested_points;
 
   AnalysisSetting analysis_setting;
-  std::map<int, NodeSet> gens;
-  std::map<int, NodeSet> kills;
+  absl::flat_hash_map<int, NodeSet> gens;
+  absl::flat_hash_map<int, NodeSet> kills;
 
  private:
   labm8::Status InitSettings();
@@ -58,7 +58,9 @@ class AnalysisBase {
     }
     return result;
   }
-  std::vector<NodeSet> GetStoredNodeSets() const { return stored_nodesets; }
+  const std::vector<NodeSet>& GetStoredNodeSets() const { return stored_nodesets; }
+  const absl::flat_hash_map<int, NodeSet>& GetGens() const { return gens; }
+  const absl::flat_hash_map<int, NodeSet>& GetKills() const { return kills; }
 
  protected:
   virtual void ParseProgramGraph() = 0;

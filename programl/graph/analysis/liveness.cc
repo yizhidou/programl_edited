@@ -42,6 +42,10 @@ Status LivenessAnalysis::Init() {
   const auto& rdfg = adjacencies().reverse_data;
   DCHECK(rdfg.size() == graph().node_size()) << rdfg.size() << " != " << graph().node_size();
 
+  // yzd added
+  gens = adjacencies().reverse_data;
+  kills = adjacencies().data;
+
   // Pre-compute all live-out sets.
   liveInSets_.reserve(graph().node_size());
   liveOutSets_.reserve(graph().node_size());

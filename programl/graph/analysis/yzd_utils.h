@@ -23,8 +23,10 @@ NodeSet operator|=(NodeSet& lhs, NodeSet& rhs);
 NodeSet operator&(const NodeSet& lhs, const NodeSet& rhs);
 NodeSet& operator&=(NodeSet& lhs, const NodeSet& rhs);
 NodeSet operator-(const NodeSet& lhs, const NodeSet& rhs);
+bool operator==(const NodeSet& ns, const std::vector<int>& vi);
 
 std::ostream& operator<<(std::ostream& os, const NodeSet& nodeSet);
+std::ostream& operator<<(std::ostream& os, const std::vector<int>& intVec);
 
 enum TaskName { yzd_liveness };
 enum Direction { forward, backward };

@@ -113,6 +113,7 @@ const AdjacencyLists& DataFlowPass::ComputeAdjacencies(const AdjacencyListOption
     }
   }
 
+  int data_edge_count = 0;
   for (int i = 0; i < graph().edge_size(); ++i) {
     const Edge& edge = graph().edge(i);
     if (edge.flow() == Edge::CONTROL) {
@@ -123,6 +124,7 @@ const AdjacencyLists& DataFlowPass::ComputeAdjacencies(const AdjacencyListOption
         adjacencies_.reverse_control[edge.target()].push_back(edge.source());
       }
     } else if (edge.flow() == Edge::DATA) {
+      data_edge_count ++;
       if (options.data) {
         adjacencies_.data[edge.source()].push_back(edge.target());
       }
@@ -134,6 +136,7 @@ const AdjacencyLists& DataFlowPass::ComputeAdjacencies(const AdjacencyListOption
       }
     }
   }
+  std::cout << "(programl) data edge_count is: " << data_edge_count << std::endl;
 
   return adjacencies_;
 }
