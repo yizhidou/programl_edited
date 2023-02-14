@@ -32,34 +32,34 @@ class YZDLiveness : public AnalysisBase {
         if (!(yzd_iter->second == programl_result[node_idx])) {
           // 这就是俩不一样
           diff_count++;
-          std::cout << diff_count << ": NOT THE SAME! node_idx: " << node_idx << std::endl;
-          std::cout << "the size of yzd_result: " << yzd_iter->second.size()
-                    << "; the size of programl_result: " << programl_result[node_idx].size()
-                    << std::endl;
-          // 还要去实现一个NodeSet的打印
-          std::cout << "from yzd: " << yzd_iter->second << std::endl;
-          std::cout << "from programl: " << programl_result[node_idx] << std::endl;
-          // return labm8::Status(labm8::error::FAILED_PRECONDITION,
-          //                      "Results from the two are not exactly the same!!!");
+          // std::cout << diff_count << ": NOT THE SAME! node_idx: " << node_idx << std::endl;
+          // std::cout << "the size of yzd_result: " << yzd_iter->second.size()
+          //           << "; the size of programl_result: " << programl_result[node_idx].size()
+          //           << std::endl;
+          // // 还要去实现一个NodeSet的打印
+          // std::cout << "from yzd: " << yzd_iter->second << std::endl;
+          // std::cout << "from programl: " << programl_result[node_idx] << std::endl;
+          // // return labm8::Status(labm8::error::FAILED_PRECONDITION,
+          // //                      "Results from the two are not exactly the same!!!");
         }
       }
     }
     std::cout << "In total diff_count is: " << diff_count << std::endl;
     // 难道是stored_nodeset全零的锅？
-    int non_empty_stored_nodeset = 0;
-    int ns_idx = 0;
-    const auto stored_nodeset = GetStoredNodeSets();
-    for (const auto& ns : stored_nodeset) {
-      if (!(ns.size() == 0)) {
-        non_empty_stored_nodeset++;
-        std::cout << non_empty_stored_nodeset << " : non_empty_stored_nodeset is " << ns
-                  << std::endl;
-      }
-      // std::cout << ns_idx << " stored nodeset : " << ns << std::endl;
-      ns_idx++;
-    }
-    std::cout << "In total, size of stored_nodeset is: " << stored_nodeset.size()
-              << "; non_empty_stored_nodeset is: " << non_empty_stored_nodeset << std::endl;
+    // int non_empty_stored_nodeset = 0;
+    // int ns_idx = 0;
+    // const auto stored_nodeset = GetStoredNodeSets();
+    // for (const auto& ns : stored_nodeset) {
+    //   if (!(ns.size() == 0)) {
+    //     non_empty_stored_nodeset++;
+    //     std::cout << non_empty_stored_nodeset << " : non_empty_stored_nodeset is " << ns
+    //               << std::endl;
+    //   }
+    //   std::cout << ns_idx << " stored nodeset : " << ns << std::endl;
+    //   ns_idx++;
+    // }
+    // std::cout << "In total, size of stored_nodeset is: " << stored_nodeset.size()
+    //           << "; non_empty_stored_nodeset is: " << non_empty_stored_nodeset << std::endl;
     return labm8::Status::OK;
   }
 

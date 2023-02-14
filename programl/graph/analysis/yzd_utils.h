@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-
+#include <queue>
 #include "absl/container/flat_hash_map.h"
 #include "absl/container/flat_hash_set.h"
 
@@ -18,15 +18,18 @@ struct Adjacencies {
   absl::flat_hash_map<int, absl::flat_hash_set<int>> control_reverse_adj_list;
 };
 
-NodeSet operator|(NodeSet& lhs, NodeSet& rhs);
-NodeSet operator|=(NodeSet& lhs, NodeSet& rhs);
+NodeSet operator|(const NodeSet& lhs, const NodeSet& rhs);
+NodeSet& operator|=(NodeSet& lhs, const NodeSet& rhs);
 NodeSet operator&(const NodeSet& lhs, const NodeSet& rhs);
 NodeSet& operator&=(NodeSet& lhs, const NodeSet& rhs);
 NodeSet operator-(const NodeSet& lhs, const NodeSet& rhs);
 bool operator==(const NodeSet& ns, const std::vector<int>& vi);
+bool operator>(const NodeSet& lhs, const NodeSet& rhs);
 
 std::ostream& operator<<(std::ostream& os, const NodeSet& nodeSet);
 std::ostream& operator<<(std::ostream& os, const std::vector<int>& intVec);
+// std::ostream& operator<<(std::ostream& os, const std::queue<WorklistItem>& workList);
+void PrintWorkList(const std::queue<WorklistItem>& workList);
 
 enum TaskName { yzd_liveness };
 enum Direction { forward, backward };

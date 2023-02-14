@@ -18,7 +18,7 @@ class AnalysisBase {
  private:
   // each element of this vector corresponds to the result of one iteration
   std::vector<absl::flat_hash_map<int, int>> result_pointers;
-  std::vector<NodeSet> stored_nodesets;
+  std::vector<const NodeSet> stored_nodesets;
   std::queue<WorklistItem> work_list;
 
  protected:
@@ -58,7 +58,7 @@ class AnalysisBase {
     }
     return result;
   }
-  const std::vector<NodeSet>& GetStoredNodeSets() const { return stored_nodesets; }
+  const std::vector<const NodeSet>& GetStoredNodeSets() const { return stored_nodesets; }
   const absl::flat_hash_map<int, NodeSet>& GetGens() const { return gens; }
   const absl::flat_hash_map<int, NodeSet>& GetKills() const { return kills; }
 

@@ -10,14 +10,18 @@
 
 namespace yzd {
 
-NodeSet operator|(NodeSet& lhs, NodeSet& rhs) {
+NodeSet operator|(const NodeSet& lhs, const NodeSet& rhs) {
   NodeSet result(lhs);
-  result.merge(rhs);
+  for (const auto& i : rhs){
+    result.insert(i);
+  }
   return result;
 }
 
-NodeSet operator|=(NodeSet& lhs, NodeSet& rhs) {
-  lhs.merge(rhs);
+NodeSet& operator|=(NodeSet& lhs, const NodeSet& rhs) {
+  for (const auto& i : rhs){
+    lhs.insert(i);
+  }
   return lhs;
 }
 
@@ -41,7 +45,7 @@ NodeSet& operator&=(NodeSet& lhs, const NodeSet& rhs) {
 }
 
 NodeSet operator-(const NodeSet& lhs, const NodeSet& rhs) {
-  NodeSet result;
+  NodeSet result(lhs);
   for (const auto& item : lhs) {
     if (rhs.contains(item)) {
       result.erase(item);
@@ -63,13 +67,39 @@ std::ostream& operator<<(std::ostream& os, const NodeSet& nodeSet) {
   return os;
 }
 
-bool operator==(const NodeSet& ns, const std::vector<int>& vi){
+void PrintWorkList(const std::queue<WorklistItem>& workList) {
+  std::queue<WorklistItem> tmp_wl(workList);
+  std::cout << "[";
+  int reserved_iter_idx = -1;
+  while (!tmp_wl.empty()) {
+    const auto cur_item = tmp_wl.front();
+    if (reserved_iter_idx == -1) {
+      reserved_iter_idx = cur_item.iter_idx;
+    } else {
+      assert((cur_item.iter_idx == reserved_iter_idx) && "iter_idx should be all the same.");
+    }
+    std::cout << " " << cur_item.node_idx;
+    tmp_wl.pop();
+  }
+  std::cout << " ]: " << reserved_iter_idx << std::endl;
+}
+
+bool operator==(const NodeSet& ns, const std::vector<int>& vi) {
   NodeSet tmp_ns(vi.begin(), vi.end());
   return ns == tmp_ns;
 }
 
-std::ostream& operator<<(std::ostream& os, const std::vector<int>& intVec){
-  if( intVec.size() == 0){
+bool operator>(const NodeSet& lhs, const NodeSet& rhs) {
+  for (const auto& item: rhs){
+    if (!lhs.contains(item)){
+      return false;
+    }
+  }
+  return lhs.size() > rhs.size();
+}
+
+std::ostream& operator<<(std::ostream& os, const std::vector<int>& intVec) {
+  if (intVec.size() == 0) {
     os << "[]";
     return os;
   }
@@ -82,4 +112,3 @@ std::ostream& operator<<(std::ostream& os, const std::vector<int>& intVec){
 }
 
 }  // namespace yzd
-
