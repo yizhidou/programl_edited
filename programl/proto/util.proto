@@ -142,6 +142,10 @@ message NodeIndexList {
 
 // yzd added part
 
+message ResultOneIteration {
+  map<int64, Int64List> result_map = 1;
+}
+
 message ResultsEveryIteration {
   repeated ResultOneIteration results_every_iteration = 1;
   Int64List program_points=2;
@@ -149,6 +153,6 @@ message ResultsEveryIteration {
   string task_name = 4;
 }
 
-message ResultOneIteration {
-  map<int64, Int64List> result_map = 1;
+message ResultsEveryIterationList {
+  repeated ResultsEveryIteration result = 1;
 }

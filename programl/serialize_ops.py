@@ -18,13 +18,13 @@ Graphs.
 """
 import gzip
 from pathlib import Path
-from typing import Iterable, List, Optional
+from typing import Iterable, List, Optional, Union
 
 import google.protobuf.message
 import google.protobuf.text_format
 
-from programl.exceptions import GraphCreationError
-from programl.proto import ProgramGraph, ProgramGraphList
+from programl.exceptions import GraphCreationError, ResultsCreationError
+from programl.proto import ProgramGraph, ProgramGraphList, ResultsEveryIteration, ResultsEveryIterationList
 
 
 def save_graphs(
@@ -179,3 +179,125 @@ def from_string(
     if idx_list:
         return [graph_list.graph[i] for i in idx_list]
     return list(graph_list.graph)
+
+# yzd added
+
+def dump_results_to_bytes(results: Iterable[ResultsEveryIteration],
+                          compression: Optional[str] = "gz") -> bytes:
+    """Serialize a sequence of YZD analysis results (ResultsEveryIteration) to a byte array.
+
+    :param results: A sequence of ResultsEveryIteration.
+
+    :param compression: Either :code:`gz` for GZip compression (the default), or
+        :code:`None` for no compression. 
+
+    :return: The serialized results.
+    """
+    compressors = {
+        "gz": gzip.compress,
+        None: lambda d: d,
+    }
+    if compression not in compressors:
+        compressors = ", ".join(sorted(str(x) for x in compressors))
+        raise TypeError(
+            f"Invalid compression argument: {compression}. "
+            f"Supported compressions: {compressors}"
+        )
+    compress = compressors[compression]
+
+    return compress(ResultsEveryIterationList(list_of_results=list(results)).SerializeToString())
+
+def load_results_from_bytes(data: bytes,
+                            idx_list: Optional[List[int]] = None,
+                            compression: Optional[str] = "gz") -> List[ProgramGraph]:
+    """Deserialize ResultsEveryIteration(s) from a byte array.
+
+    :param data: The serialized ResultsEveryIterationList.
+
+    :param idx_list: A zero-based list of graph indices to return. If not
+        provided, all graphs are returned.
+
+    :param compression: Either :code:`gz` for GZip compression (the default), or
+        :code:`None` for no compression. 
+
+    :return: A list of ResultsEveryIteration(s).
+
+    :raise ResultsCreationError: If deserialization fails.
+    """
+    decompressors = {
+        "gz": gzip.decompress,
+        None: lambda d: d,
+    }
+    if compression not in decompressors:
+        decompressors = ", ".join(sorted(str(x) for x in decompressors))
+        raise TypeError(
+            f"Invalid compression argument: {compression}. "
+            f"Supported compressions: {decompressors}"
+        )
+    decompress = decompressors[compression]
+
+    results_list = ResultsEveryIterationList()
+    try:
+        results_list.ParseFromString(decompress(data))
+    except (gzip.BadGzipFile, google.protobuf.message.DecodeError) as e:
+        raise ResultsCreationError(str(e)) from e
+
+    if idx_list:
+        return [results_list.list_of_results[i] for i in idx_list]
+    return list(results_list.list_of_results)
+
+class ResultListSerializer:
+    def serialize(self, results: Iterable[ResultsEveryIteration],
+                 format: str,
+                 compression: Optional[str] = "gz") -> bytes:
+        _serializer = self._get_serializer(format=format)
+        return _serializer(results, compression)
+
+    def _get_serializer(self, format):
+        if format == "byte" or format == "Byte" or format == "BYTE":
+            return self._serialize_to_bytes
+        pass
+
+    def _serialize_to_bytes(self, results: Iterable[ResultsEveryIteration],
+                            compression: Optional[str] = "gz"):
+        """Serialize a sequence of ResultsEveryIteration(s) to a byte array.
+
+        :results: A sequence of ResultsEveryIteration(s).
+
+        :param compression: Either :code:`gz` for GZip compression (the default), or
+            :code:`None` for no compression. Compression increases the cost of
+            serializing and deserializing but can greatly reduce the size of the
+            serialized graphs.
+
+        :return: The serialized program graphs.
+        """
+        compressors = {
+            "gz": gzip.compress,
+            None: lambda d: d,
+        }
+        if compression not in compressors:
+            compressors = ", ".join(sorted(str(x) for x in compressors))
+            raise TypeError(
+                f"Invalid compression argument: {compression}. "
+                f"Supported compressions: {compressors}"
+            )
+        compress = compressors[compression]
+
+        return compress(ResultsEveryIterationList(result=list(results)).SerializeToString())
+
+    def _serialize_to_string(self, results: Iterable[ResultsEveryIteration]) -> str:
+        """Serialize a sequence of ResultsEveryIteration(s) to a human-readable string.
+
+        The generated string has a JSON-like syntax that is designed for human
+        readability. This is the least compact form of serialization.
+
+        :param results: A sequence of ResultsEveryIteration(s).
+
+        :return: The serialized results.
+        """
+        return str(ResultsEveryIterationList(result=list(results)))
+
+class ResultListLoader:
+    def __init__(self) -> None:
+        pass
+

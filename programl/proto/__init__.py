@@ -25,6 +25,9 @@ from programl.proto.util_pb2 import (
     ProgramGraphOptions,
     Repo,
     SourceFile,
+    ResultOneIteration,
+    ResultsEveryIteration,
+    ResultsEveryIterationList,
 )
 from programl.third_party.tensorflow.features_pb2 import (
     BytesList,
@@ -58,4 +61,7 @@ __all__ = [
     "Features",
     "FeatureList",
     "FeatureLists",
+    "ResultOneIteration",
+    "ResultsEveryIteration",    # yzd added
+    "ResultsEveryIterationList",
 ]

@@ -25,3 +25,8 @@ class GraphCreationError(ValueError):
 
 class GraphTransformError(ValueError):
     """Exception raised if a graph transform op fails."""
+
+# yzd added
+
+class ResultsCreationError(ValueError):
+    '''Exception raised if a result creation op fails'''

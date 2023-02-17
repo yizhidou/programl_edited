@@ -43,7 +43,7 @@ from programl.exceptions import (
     GraphTransformError,
     UnsupportedCompiler,
 )
-from programl.proto import ProgramGraph
+from programl.proto import ProgramGraph, ResultsEveryIteration
 from programl.serialize_ops import (
     from_bytes,
     from_string,
