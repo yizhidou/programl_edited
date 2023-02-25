@@ -100,7 +100,6 @@ def to_bytes(
 
     return compress(ProgramGraphList(graph=list(graphs)).SerializeToString())
 
-
 def from_bytes(
     data: bytes, idx_list: Optional[List[int]] = None, compression: Optional[str] = "gz"
 ) -> List[ProgramGraph]:
@@ -182,8 +181,8 @@ def from_string(
 
 # yzd added
 
-def dump_results_to_bytes(results: Iterable[ResultsEveryIteration],
-                          compression: Optional[str] = "gz") -> bytes:
+def serialize_results_to_bytes(results: Iterable[ResultsEveryIteration],
+                               compression: Optional[str] = "gz") -> bytes:
     """Serialize a sequence of YZD analysis results (ResultsEveryIteration) to a byte array.
 
     :param results: A sequence of ResultsEveryIteration.
@@ -246,58 +245,56 @@ def load_results_from_bytes(data: bytes,
         return [results_list.list_of_results[i] for i in idx_list]
     return list(results_list.list_of_results)
 
-class ResultListSerializer:
-    def serialize(self, results: Iterable[ResultsEveryIteration],
-                 format: str,
-                 compression: Optional[str] = "gz") -> bytes:
-        _serializer = self._get_serializer(format=format)
-        return _serializer(results, compression)
+def serialize_results_to_str(results: Iterable[ResultsEveryIteration]) -> str:
+    """Serialize a sequence of ResultsEveryIteration(s) to a human-readable string.
 
-    def _get_serializer(self, format):
-        if format == "byte" or format == "Byte" or format == "BYTE":
-            return self._serialize_to_bytes
-        pass
+    The generated string has a JSON-like syntax that is designed for human
+    readability. This is the least compact form of serialization.
 
-    def _serialize_to_bytes(self, results: Iterable[ResultsEveryIteration],
-                            compression: Optional[str] = "gz"):
-        """Serialize a sequence of ResultsEveryIteration(s) to a byte array.
+    :param results: A sequence of ResultsEveryIteration(s).
 
-        :results: A sequence of ResultsEveryIteration(s).
+    :return: The serialized results.
+    """
+    return str(ResultsEveryIterationList(result=list(results)))
 
-        :param compression: Either :code:`gz` for GZip compression (the default), or
-            :code:`None` for no compression. Compression increases the cost of
-            serializing and deserializing but can greatly reduce the size of the
-            serialized graphs.
+def load_results_from_bytes(
+    results: Iterable[ResultsEveryIteration], 
+    compression: Optional[str] = "gz") -> bytes:
+    """Serialize a sequence of Program Graphs to a byte array.
 
-        :return: The serialized program graphs.
-        """
-        compressors = {
-            "gz": gzip.compress,
-            None: lambda d: d,
-        }
-        if compression not in compressors:
-            compressors = ", ".join(sorted(str(x) for x in compressors))
-            raise TypeError(
-                f"Invalid compression argument: {compression}. "
-                f"Supported compressions: {compressors}"
-            )
-        compress = compressors[compression]
+    :param graphs: A sequence of Program Graphs.
 
-        return compress(ResultsEveryIterationList(result=list(results)).SerializeToString())
+    :param compression: Either :code:`gz` for GZip compression (the default), or
+        :code:`None` for no compression. Compression increases the cost of
+        serializing and deserializing but can greatly reduce the size of the
+        serialized graphs.
 
-    def _serialize_to_string(self, results: Iterable[ResultsEveryIteration]) -> str:
-        """Serialize a sequence of ResultsEveryIteration(s) to a human-readable string.
+    :return: The serialized ResultsEveryIteration(s).
+    """
+    compressors = {
+        "gz": gzip.compress,
+        None: lambda d: d,
+    }
+    if compression not in compressors:
+        compressors = ", ".join(sorted(str(x) for x in compressors))
+        raise TypeError(
+            f"Invalid compression argument: {compression}. "
+            f"Supported compressions: {compressors}"
+        )
+    compress = compressors[compression]
 
-        The generated string has a JSON-like syntax that is designed for human
-        readability. This is the least compact form of serialization.
+    return compress(ResultsEveryIterationList(graph=list(results)).SerializeToString())
 
-        :param results: A sequence of ResultsEveryIteration(s).
+def save_results(
+    path: Path, results: Iterable[ResultsEveryIteration], compression: Optional[str] = "gz"
+) -> None:
+    with open(path, "wb") as f:
+        f.write(to_bytes(results, compression=compression))
 
-        :return: The serialized results.
-        """
-        return str(ResultsEveryIterationList(result=list(results)))
 
-class ResultListLoader:
-    def __init__(self) -> None:
-        pass
+def load_results(
+    path: Path, idx_list: Optional[List[int]] = None, compression: Optional[str] = "gz"
+) -> List[ResultsEveryIteration]:
+    with open(path, "rb") as f:
+        return load_results_from_bytes(f.read(), idx_list=idx_list, compression=compression)
 

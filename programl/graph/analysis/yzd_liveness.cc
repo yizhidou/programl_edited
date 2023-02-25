@@ -6,10 +6,8 @@
 namespace yzd {
 void YZDLiveness::ParseProgramGraph() {  // 需要把program_points 和 interested_points 给算好;
                                          // gens/kills 算好； adjacencies也算好
-  int edge_count = 0, control_edge_count = 0, data_edge_count = 0, non_empty_gens = 0,
-      non_empty_kills = 0;
+  int control_edge_count = 0, data_edge_count = 0, non_empty_gens = 0, non_empty_kills = 0;
   for (const auto& edge : program_graph.edge()) {
-    edge_count++;
     if (edge.flow() == programl::Edge::CONTROL) {
       control_edge_count++;
 
@@ -19,7 +17,7 @@ void YZDLiveness::ParseProgramGraph() {  // 需要把program_points 和 interest
       program_points.insert(edge.target());
     } else if (edge.flow() == programl::Edge::DATA) {
       data_edge_count++;
-      
+
       // if (program_graph.node(edge.source()).type() == programl::Node::INSTRUCTION) {  // def edge
       //   assert((program_graph.node(edge.target()).type() == programl::Node::VARIABLE) &&
       //          "The target of this DataEdge should be Variable node!");
@@ -33,7 +31,7 @@ void YZDLiveness::ParseProgramGraph() {  // 需要把program_points 和 interest
       //   interested_points.insert(edge.source());
       //   program_points.insert(edge.target());
       //   gens[edge.target()].insert(edge.source());
-      // } 
+      // }
       // else {
       //   assert((program_graph.node(edge.source()).type() == programl::Node::CONSTANT) &&
       //          (program_graph.node(edge.target()).type() == programl::Node::INSTRUCTION) &&
@@ -46,19 +44,19 @@ void YZDLiveness::ParseProgramGraph() {  // 需要把program_points 和 interest
         interested_points.insert(edge.target());
         kills[edge.source()].insert(edge.target());
       } else {  // use edge
-        assert((program_graph.node(edge.target()).type() == programl::Node::INSTRUCTION) && "the target of this edge should be an instruction");
+        assert((program_graph.node(edge.target()).type() == programl::Node::INSTRUCTION) &&
+               "the target of this edge should be an instruction");
         interested_points.insert(edge.source());
         program_points.insert(edge.target());
         gens[edge.target()].insert(edge.source());
       }
     }
   }
-  std::cout << "total edge_count is: " << edge_count << std::endl;
-  std::cout << "total node_count is: " << program_graph.node_size() << std::endl;
-  std::cout << "control edge_count is: " << control_edge_count << std::endl;
-  std::cout << "(yzd) data edge_count is: " << data_edge_count << std::endl;
-  std::cout << "num of program points is: " << program_points.size() << std::endl;
-  std::cout << "num of interested points is: " << interested_points.size() << std::endl;
+
+  std::cout << "num_control_edge " << control_edge_count << std::endl;
+  std::cout << "num_data_edge " << data_edge_count << std::endl;
+  std::cout << "num_program_points " << program_points.size() << std::endl;
+  std::cout << "num_interested_points_liveness " << interested_points.size() << std::endl;
   for (const auto pp : program_points) {
     if (!(gens[pp].size() == 0)) {
       non_empty_gens++;
@@ -67,7 +65,31 @@ void YZDLiveness::ParseProgramGraph() {  // 需要把program_points 和 interest
       non_empty_kills++;
     }
   }
-  std::cout << "num of non_empty gens and kills are: " << non_empty_gens << " ; " << non_empty_kills
-            << std::endl;
+  std::cout << "num_none_empty_gens_liveness " << non_empty_gens << std::endl;
+  std::cout << "num_none_empty_kills_liveness " << non_empty_kills << std::endl;
 }
+
+labm8::Status YZDLiveness::ValidateWithPrograml() {
+  RETURN_IF_ERROR(programl_liveness_analysis.Init());
+  RETURN_IF_ERROR(Init());
+  // 接下来应该就是对比最后一个iteration和programl的livein是不是一致了
+  const std::vector<absl::flat_hash_set<int>> programl_result =
+      programl_liveness_analysis.live_in_sets();
+  const absl::flat_hash_map<int, NodeSet> yzd_last_result = GetLastIterationResult();
+  // int diff_count = 0;
+  for (int node_idx = 0; node_idx < programl_result.size(); node_idx++) {
+    const auto yzd_iter = yzd_last_result.find(node_idx);
+    if ((yzd_iter != yzd_last_result.end()) && !(yzd_iter->second == programl_result[node_idx])) {
+      // diff_count++;
+      return labm8::Status(labm8::error::ABORTED,
+                         "The validation did not pass!");
+    }
+  }
+  // if (diff_count > 0) {
+  //   return labm8::Status(labm8::error::ABORTED,
+  //                        "The graph has either none program points or none interested points");
+  // } 
+  return labm8::Status::OK;
+}
+
 }  // namespace yzd

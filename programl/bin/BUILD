@@ -35,10 +35,11 @@ filegroup(
         # ":llvm2graph-6",
         ":xla2graph",
         ":analyze",
+        "validate",
         # Not used by current Python API: ":analyze",
         # Not used by current Python API: ":graph2cdfg",
         # Not used by current Python API: ":graph2seq",
-        # Not used by current Python API: ":pbq",
+        ":pbq",
     ] + select({
         "@llvm//:darwin": [],
         "//conditions:default": [
@@ -97,6 +98,21 @@ cc_binary(
         "//programl/util:stdout_fmt",
         "@labm8//labm8/cpp:app",
         "@labm8//labm8/cpp:status",
+    ],
+)
+
+cc_binary(
+    name = "validate",
+    srcs = ["validate.cc"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//programl:version_header",
+        "//programl/proto:programl_cc",
+        "//programl/util:stdin_fmt",
+        "//programl/util:stdout_fmt",
+        "@labm8//labm8/cpp:app",
+        "@labm8//labm8/cpp:status",
+        "//programl/graph/analysis",
     ],
 )
 

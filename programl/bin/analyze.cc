@@ -78,9 +78,9 @@ int main(int argc, char** argv) {
   }
     programl::ResultsEveryIteration resultsEveryIterationMessage;
     int maxIteration = std::atoi(argv[2]);
-    // status = programl::graph::analysis::RunAnalysis(task_name, maxIteration, graph, &resultsEveryIterationMessage);
-    yzd::AnalysisSetting yzd_setting(yzd::TaskName::yzd_liveness, maxIteration);
-    status = yzd::YZDLiveness(graph, yzd_setting).RunAndValidate();
+    status = programl::graph::analysis::RunAnalysis(task_name, maxIteration, graph, &resultsEveryIterationMessage);
+    // yzd::AnalysisSetting yzd_setting(yzd::TaskName::yzd_liveness, maxIteration);
+    // status = yzd::YZDLiveness(graph, yzd_setting).ValidateWithPrograml();
     if (!status.ok()) {
       LOG(ERROR) << status.error_message();
       return 4;
