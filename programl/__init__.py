@@ -42,6 +42,7 @@ from programl.exceptions import (
     GraphCreationError,
     GraphTransformError,
     UnsupportedCompiler,
+    ValidationError,
 )
 from programl.proto import ProgramGraph, ResultsEveryIteration
 from programl.serialize_ops import (
@@ -52,6 +53,7 @@ from programl.serialize_ops import (
     to_bytes,
     to_string,
 )
+from programl.validate_ops import validate_one_file
 from programl.transform_ops import to_dgl, to_dot, to_json, to_networkx
 from programl.util.py.runfiles_path import runfiles_path
 from programl.version import PROGRAML_VERSION
@@ -86,4 +88,6 @@ __all__ = [
     "to_networkx",
     "to_string",
     "UnsupportedCompiler",
+    "validate_one_file",
+    "ValidationError",
 ]

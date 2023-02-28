@@ -136,7 +136,7 @@ const AdjacencyLists& DataFlowPass::ComputeAdjacencies(const AdjacencyListOption
       }
     }
   }
-  std::cout << "(programl) data edge_count is: " << data_edge_count << std::endl;
+  // std::cout << "(programl) data edge_count is: " << data_edge_count << std::endl;
 
   return adjacencies_;
 }

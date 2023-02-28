@@ -21,6 +21,7 @@ py_library(
         "create_ops.py",
         "exceptions.py",
         "serialize_ops.py",
+        "validate_ops.py",
         "transform_ops.py",
         "version.py",
     ],

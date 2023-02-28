@@ -114,7 +114,7 @@ labm8::Status AnalysisBase::Init() {
       work_list.emplace(cur_iter_idx + 1, affted_node);
     }
   }
-  std::cout << "num_iteration " << total_iter_num << std::endl;
+  std::cout << "num_iteration_liveness " << total_iter_num << std::endl;
   return labm8::Status::OK;
 }
 

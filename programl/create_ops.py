@@ -68,7 +68,7 @@ def from_cpp(
     copts: Optional[List[str]] = None,
     system_includes: bool = True,
     language: str = "c++",
-    version: str = "10",
+    version: str = "13",
     timeout=300,
     executor: Optional[ExecutorLike] = None,
     chunksize: Optional[int] = None,

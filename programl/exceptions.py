@@ -29,4 +29,7 @@ class GraphTransformError(ValueError):
 # yzd added
 
 class ResultsCreationError(ValueError):
-    '''Exception raised if a result creation op fails'''
+    """Exception raised if a result creation op fails"""
+
+class ValidationError(ValueError):
+    """Exception raised if validation unpassed"""
