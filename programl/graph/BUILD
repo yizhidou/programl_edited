@@ -40,5 +40,6 @@ cc_library(
         "@labm8//labm8/cpp:status_macros",
         "@labm8//labm8/cpp:statusor",
         "@labm8//labm8/cpp:string",
+        "@llvm//13.0.0",
     ],
 )

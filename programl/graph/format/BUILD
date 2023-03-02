@@ -30,6 +30,20 @@ cc_library(
     ],
 )
 
+#yzd
+cc_library(
+    name = "yzdgraph",
+    srcs = ["YZDGraphBuilder.cc"],
+    hdrs = ["YZDGraphBuilder.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//programl/graph:features",
+        "//programl/proto:programl_cc",
+        "@com_google_absl//absl/container:flat_hash_set",
+        "@labm8//labm8/cpp:logging",
+    ],
+)
+
 cc_library(
     name = "graph_serializer",
     srcs = ["graph_serializer.cc"],

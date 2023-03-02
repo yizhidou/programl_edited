@@ -36,8 +36,8 @@ filegroup(
         ":xla2graph",
         ":analyze",
         "validate",
-        # Not used by current Python API: ":analyze",
-        # Not used by current Python API: ":graph2cdfg",
+        ":graph2cdfg",
+        "graph2yzdgraph",
         # Not used by current Python API: ":graph2seq",
         ":pbq",
     ] + select({
@@ -158,6 +158,21 @@ cc_binary(
     deps = [
         "//programl:version_header",
         "//programl/graph/format:cdfg",
+        "//programl/proto:programl_cc",
+        "//programl/util:stdin_fmt",
+        "//programl/util:stdout_fmt",
+        "@labm8//labm8/cpp:app",
+    ],
+)
+
+#yzd
+cc_binary(
+    name = "graph2yzdgraph",
+    srcs = ["graph2yzdgraph.cc"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//programl:version_header",
+        "//programl/graph/format:yzdgraph",
         "//programl/proto:programl_cc",
         "//programl/util:stdin_fmt",
         "//programl/util:stdout_fmt",
