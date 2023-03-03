@@ -57,8 +57,8 @@ NodeSet AnalysisBase::MeetOperation(const int iterIdx,
 }
 
 labm8::Status AnalysisBase::Init() {
-  ParseProgramGraph();  // 需要把program_points 和 interested_points 给算好;
-                        // adjacencies也算好。这是一个纯虚函数。
+  ParseProgramGraph();              // 需要把program_points 和 interested_points 给算好;
+                                    // adjacencies也算好。这是一个纯虚函数。
   RETURN_IF_ERROR(InitSettings());  // 这个主要作用往stored_result_set里加初始的结果
 
   // add all nodes in worklist
@@ -89,7 +89,8 @@ labm8::Status AnalysisBase::Init() {
             ? adjacencies.control_reverse_adj_list[cur_node_idx]  // meet all predecessors
             : adjacencies.control_adj_list[cur_node_idx];         // meet all successors
     if (!neighbor_nodes.empty()) {
-      meeted_nodeset = MeetOperation(cur_iter_idx-1, neighbor_nodes); //这地方-1不-1结果都一样的吗？
+      meeted_nodeset =
+          MeetOperation(cur_iter_idx - 1, neighbor_nodes);  // 这地方-1不-1结果都一样的吗？
     }
 
     NodeSet temp = meeted_nodeset - kills[cur_node_idx];
@@ -114,7 +115,12 @@ labm8::Status AnalysisBase::Init() {
       work_list.emplace(cur_iter_idx + 1, affted_node);
     }
   }
-  std::cout << "num_iteration_liveness " << total_iter_num << std::endl;
+  if (analysis_setting.task_name == yzd::yzd_liveness) {
+    std::cout << "num_iteration_liveness " << total_iter_num << std::endl;
+  } else if (analysis_setting.task_name == yzd::yzd_dominance) {
+    std::cout << "num_iteration_dominance " << total_iter_num << std::endl;
+  }
+
   return labm8::Status::OK;
 }
 

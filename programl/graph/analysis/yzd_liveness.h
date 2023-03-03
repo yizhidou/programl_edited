@@ -1,3 +1,5 @@
+#pragma once
+
 #include "labm8/cpp/status.h"
 #include "labm8/cpp/status_macros.h"
 #include "liveness.h"

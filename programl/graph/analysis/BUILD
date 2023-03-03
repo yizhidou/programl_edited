@@ -28,6 +28,7 @@ cc_library(
         ":reachability",
         ":subexpressions",
         ":yzd_liveness",
+        ":yzd_dominance",
         "//programl/proto:programl_cc",
         "@labm8//labm8/cpp:status",
     ],
@@ -158,5 +159,16 @@ cc_library(
     deps = [
         ":yzd_analysis_base",
         ":liveness"
+    ]
+)
+
+cc_library(
+    name = "yzd_dominance",
+    srcs = ["yzd_dominance.cc"],
+    hdrs = ["yzd_dominance.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":yzd_analysis_base",
+        ":dominance"
     ]
 )

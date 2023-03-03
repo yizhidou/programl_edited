@@ -42,7 +42,7 @@ class DominanceAnalysis : public RoodNodeDataFlowAnalysis {
 
   virtual labm8::Status Init() override;
 
- protected:
+//  protected:  // yzd
   labm8::Status ComputeDominators(const int rootNode, int* dataFlowSteps,
                                   absl::flat_hash_map<int, absl::flat_hash_set<int>>* dominators);
 };

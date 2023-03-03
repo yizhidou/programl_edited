@@ -76,19 +76,28 @@ labm8::Status YZDLiveness::ValidateWithPrograml() {
   const std::vector<absl::flat_hash_set<int>> programl_result =
       programl_liveness_analysis.live_in_sets();
   const absl::flat_hash_map<int, NodeSet> yzd_last_result = GetLastIterationResult();
-  // int diff_count = 0;
+  int sim_count = 0;
   for (int node_idx = 0; node_idx < programl_result.size(); node_idx++) {
     const auto yzd_iter = yzd_last_result.find(node_idx);
-    if ((yzd_iter != yzd_last_result.end()) && !(yzd_iter->second == programl_result[node_idx])) {
-      // diff_count++;
-      return labm8::Status(labm8::error::ABORTED,
-                         "The validation did not pass!");
+    if (!(yzd_iter == yzd_last_result.end())) {
+      assert((program_graph.node(node_idx).type() == programl::Node::INSTRUCTION) &&
+             "The intersected node should be an instruction node!");
+      if (!(yzd_iter->second == programl_result[node_idx])) {
+        return labm8::Status(labm8::error::ABORTED, "The validation did not pass!");
+      }
+      else{
+        sim_count++;
+      }
     }
+    //   if (!(yzd_iter == yzd_last_result.end()) && !(yzd_iter->second ==
+    //   programl_result[node_idx])) {
+    //     // diff_count++;
+    //     assert((program_graph.node(node_idx).type() == programl::Node::INSTRUCTION) &&
+    //            "The intersected node should be an instruction node!");
+    //     return labm8::Status(labm8::error::ABORTED, "The validation did not pass!");
+    //   }
   }
-  // if (diff_count > 0) {
-  //   return labm8::Status(labm8::error::ABORTED,
-  //                        "The graph has either none program points or none interested points");
-  // } 
+  std::cout << "sim_count = " << sim_count << std::endl;
   return labm8::Status::OK;
 }
 

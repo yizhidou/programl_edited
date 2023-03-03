@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <queue>
+
 #include "absl/container/flat_hash_map.h"
 #include "absl/container/flat_hash_set.h"
 
@@ -10,7 +11,7 @@ using NodeSet = absl::flat_hash_set<int>;
 struct WorklistItem {
   int iter_idx;
   int node_idx;
-  WorklistItem(int iterIdx, int nodeIdx): iter_idx(iterIdx), node_idx(nodeIdx) {}
+  WorklistItem(int iterIdx, int nodeIdx) : iter_idx(iterIdx), node_idx(nodeIdx) {}
 };
 
 struct Adjacencies {
@@ -31,7 +32,7 @@ std::ostream& operator<<(std::ostream& os, const std::vector<int>& intVec);
 // std::ostream& operator<<(std::ostream& os, const std::queue<WorklistItem>& workList);
 void PrintWorkList(const std::queue<WorklistItem>& workList);
 
-enum TaskName { yzd_liveness };
+enum TaskName { yzd_liveness, yzd_dominance };
 enum Direction { forward, backward };
 enum MayOrMust { may, must };
 enum InitializeMode { allzeros, allones };
@@ -50,7 +51,10 @@ struct AnalysisSetting {
         may_or_must = may;
         initialize_mode = allzeros;
         break;
-
+      case yzd_dominance:
+        direction = forward;
+        may_or_must = must;
+        initialize_mode = allzeros;
       default:
         break;
     }
