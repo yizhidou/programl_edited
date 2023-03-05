@@ -86,6 +86,9 @@ labm8::Status YZDLiveness::ValidateWithPrograml() {
         return labm8::Status(labm8::error::ABORTED, "The validation did not pass!");
       }
       else{
+        // std::cout << "program point: " << node_idx << std::endl;
+        // std::cout << "result from yzd: " << yzd_iter->second << std::endl;
+        // std::cout << "result from pro: " << programl_result[node_idx] << std::endl;
         sim_count++;
       }
     }

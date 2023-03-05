@@ -69,7 +69,7 @@ std::ostream& operator<<(std::ostream& os, const NodeSet& nodeSet) {
 
 void PrintWorkList(const std::queue<WorklistItem>& workList) {
   std::queue<WorklistItem> tmp_wl(workList);
-  std::cout << "[";
+  std::cout << "work_list: [";
   int reserved_iter_idx = -1;
   while (!tmp_wl.empty()) {
     const auto cur_item = tmp_wl.front();
@@ -96,6 +96,13 @@ bool operator>(const NodeSet& lhs, const NodeSet& rhs) {
     }
   }
   return lhs.size() > rhs.size();
+}
+
+bool operator<(const NodeSet& lhs, const NodeSet& rhs) {
+  if (lhs.size() == rhs.size()){
+    return false;
+  }
+  return !(lhs>rhs);
 }
 
 std::ostream& operator<<(std::ostream& os, const std::vector<int>& intVec) {

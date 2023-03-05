@@ -39,9 +39,10 @@ std::vector<int> DominanceAnalysis::GetEligibleRootNodes() {
 Status DominanceAnalysis::ComputeDominators(
     const int rootNode, int* dataFlowSteps,
     absl::flat_hash_map<int, absl::flat_hash_set<int>>* dominators) {
+  // std::cout << "we are here in line 42 dominance.cc~~~ rootNode = " << rootNode << std::endl;
   const int function = graph().node(rootNode).function();
   const auto& rcfg = adjacencies().reverse_control;
-
+  // std::cout << "we are here in line 45 dominance.cc~~~ " << std::endl;
   // Because a node may only be dominated by a node from within the same
   // function, we need only consider the statements nodes within the same
   // function as the root node.
@@ -51,13 +52,13 @@ Status DominanceAnalysis::ComputeDominators(
       instructionsInFunction.push_back(i);
     }
   }
-
+  // std::cout << "we are here in line 55 dominance.cc~~~ " << std::endl;
   // Initialize the dominator sets. These map nodes to the set of nodes that
   // dominate it.
   absl::flat_hash_set<int> initialDominators{instructionsInFunction.begin(),
                                              instructionsInFunction.end()};
   initialDominators.erase(rootNode);
-
+  // std::cout << "we are here in line 61 dominance.cc~~~ " << std::endl;
   for (const auto& node : instructionsInFunction) {
     if (node == rootNode) {
       (*dominators)[node].insert(rootNode);
@@ -65,19 +66,21 @@ Status DominanceAnalysis::ComputeDominators(
       (*dominators)[node] = initialDominators;
     }
   }
-
+  // std::cout << "we are here in line 69 dominance.cc~~~ " << std::endl;
   bool changed = true;
   *dataFlowSteps = 0;
   while (changed) {
+    // std::cout << "we are here in line 73 dominance.cc~~~ dataflowstep = " << *dataFlowSteps << std::endl;
     changed = false;
     for (const auto& node : instructionsInFunction) {
       if (node == rootNode) {
         continue;
       }
+      // std::cout << "we are here in line 79 dominance.cc~~~ node = " << node << std::endl;
 
       // Get the predecessor nodes.
       const auto& predecessors = rcfg[node];
-
+      // std::cout << "we are here in line 83 dominance.cc~~~ " << std::endl;
       // Intersect the dominators of all predecessors.
       absl::flat_hash_map<int, int> domPred;
       for (const auto& predecessor : predecessors) {
@@ -85,6 +88,7 @@ Status DominanceAnalysis::ComputeDominators(
           ++domPred[d];
         }
       }
+      // std::cout << "we are here in line 91 dominance.cc~~~ " << std::endl;
       absl::flat_hash_set<int> newDom;
       newDom.insert(node);
       for (const auto& it : domPred) {
@@ -92,13 +96,14 @@ Status DominanceAnalysis::ComputeDominators(
           newDom.insert(it.first);
         }
       }
-
+      // std::cout << "we are here in line 99 dominance.cc~~~ " << std::endl;
       if (newDom != (*dominators)[node]) {
         *dataFlowSteps = *dataFlowSteps + 1;
         // Error if failed to converge after a generous number of time steps.
         // In the future we may want to extend this value or remove the check
         // entirely.
         if (*dataFlowSteps > 1000) {
+          // std::cout << "we are here in line 103 dominance.cc~~~ " << std::endl;
           return Status(error::FAILED_PRECONDITION,
                         "Dominance fixed-point not found in 1000 steps");
         }
@@ -107,7 +112,7 @@ Status DominanceAnalysis::ComputeDominators(
       }
     }
   }
-
+  // std::cout << "we are here in line 112 dominance.cc~~~ " << std::endl;
   return Status::OK;
 }
 

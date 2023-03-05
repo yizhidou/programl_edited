@@ -26,6 +26,7 @@ NodeSet& operator&=(NodeSet& lhs, const NodeSet& rhs);
 NodeSet operator-(const NodeSet& lhs, const NodeSet& rhs);
 bool operator==(const NodeSet& ns, const std::vector<int>& vi);
 bool operator>(const NodeSet& lhs, const NodeSet& rhs);
+bool operator<(const NodeSet& lhs, const NodeSet& rhs);
 
 std::ostream& operator<<(std::ostream& os, const NodeSet& nodeSet);
 std::ostream& operator<<(std::ostream& os, const std::vector<int>& intVec);
@@ -54,7 +55,7 @@ struct AnalysisSetting {
       case yzd_dominance:
         direction = forward;
         may_or_must = must;
-        initialize_mode = allzeros;
+        initialize_mode = allones;
       default:
         break;
     }

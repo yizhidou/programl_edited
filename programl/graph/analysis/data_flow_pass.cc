@@ -156,6 +156,7 @@ Status RoodNodeDataFlowAnalysis::Run(ProgramGraphFeaturesList* featuresList) {
   int numRoots =
       std::min(static_cast<int>(ceil(rootNodes.size() / 10.0)), max_instances_per_graph());
   for (int i = 0; i < numRoots; ++i) {
+  // for (int i = 0; i < rootNodes.size(); ++i) {  // yzd modified
     ProgramGraphFeatures features;
     RETURN_IF_ERROR(RunOne(rootNodes[i], &features));
     *featuresList->add_graph() = features;
