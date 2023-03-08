@@ -132,6 +132,8 @@ cc_library(
     deps = [
         "@com_google_absl//absl/container:flat_hash_map",
         "@com_google_absl//absl/container:flat_hash_set",
+        "@labm8//labm8/cpp:status",
+        "@labm8//labm8/cpp:statusor",
     ],
 )
 

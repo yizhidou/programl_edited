@@ -4,6 +4,8 @@
 
 #include "absl/container/flat_hash_map.h"
 #include "absl/container/flat_hash_set.h"
+#include "labm8/cpp/status.h"
+#include "labm8/cpp/statusor.h"
 
 namespace yzd {
 using NodeSet = absl::flat_hash_set<int>;
@@ -72,4 +74,7 @@ struct AnalysisSetting {
     }
   }
 };
+
+NodeSet SubgraphNodesFromRoot(const int& rootNode, const Adjacencies& adjacencies,
+                              const Direction& direction);
 }  // namespace yzd

@@ -12,14 +12,14 @@ namespace yzd {
 
 NodeSet operator|(const NodeSet& lhs, const NodeSet& rhs) {
   NodeSet result(lhs);
-  for (const auto& i : rhs){
+  for (const auto& i : rhs) {
     result.insert(i);
   }
   return result;
 }
 
 NodeSet& operator|=(NodeSet& lhs, const NodeSet& rhs) {
-  for (const auto& i : rhs){
+  for (const auto& i : rhs) {
     lhs.insert(i);
   }
   return lhs;
@@ -90,8 +90,8 @@ bool operator==(const NodeSet& ns, const std::vector<int>& vi) {
 }
 
 bool operator>(const NodeSet& lhs, const NodeSet& rhs) {
-  for (const auto& item: rhs){
-    if (!lhs.contains(item)){
+  for (const auto& item : rhs) {
+    if (!lhs.contains(item)) {
       return false;
     }
   }
@@ -99,10 +99,10 @@ bool operator>(const NodeSet& lhs, const NodeSet& rhs) {
 }
 
 bool operator<(const NodeSet& lhs, const NodeSet& rhs) {
-  if (lhs.size() == rhs.size()){
+  if (lhs.size() == rhs.size()) {
     return false;
   }
-  return !(lhs>rhs);
+  return !(lhs > rhs);
 }
 
 std::ostream& operator<<(std::ostream& os, const std::vector<int>& intVec) {
@@ -116,6 +116,37 @@ std::ostream& operator<<(std::ostream& os, const std::vector<int>& intVec) {
   }
   os << "]";
   return os;
+}
+
+NodeSet SubgraphNodesFromRoot(const int& rootNode, const Adjacencies& adjacencies,
+                                               const Direction& direction) {
+  NodeSet result_nodeset;
+  std::vector<int> stack;
+  stack.emplace_back(rootNode);
+  const absl::flat_hash_map<int, NodeSet>* adj;
+  // auto t = adjacencies.control_adj_list[0];
+
+  if (direction == forward) {
+    adj = &(adjacencies.control_adj_list);
+  } else {
+    adj = &(adjacencies.control_reverse_adj_list);
+  }
+  while (!stack.empty()) {
+    int cur_node = stack.back();
+    result_nodeset.insert(cur_node);
+    stack.pop_back();
+    const auto search = adj->find(cur_node);
+    if (search != adj->end()) {
+      const auto& predecessors = search->second;
+      for (const auto& pred : predecessors) {
+        if (result_nodeset.contains(pred)) {
+          continue;
+        }
+        stack.emplace_back(pred);
+      }
+    }
+  }
+  return result_nodeset;
 }
 
 }  // namespace yzd

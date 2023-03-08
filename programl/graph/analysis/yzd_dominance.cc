@@ -25,8 +25,14 @@ void YZDDominance::ParseProgramGraph() {  // 需要把program_points 和 interes
 }
 
 labm8::Status YZDDominance::ValidateWithPrograml() {
-  RETURN_IF_ERROR(Init());
   RETURN_IF_ERROR(programl_dominance_analysis.Init());
+  // const auto programl_eligiable_roots = programl_dominance_analysis.GetEligibleRootNodes();
+  // std::cout << "programl eligiable roots include: ";
+  // for (const auto& item : programl_eligiable_roots){
+  //   std::cout << item << ", ";
+  // }
+  // std::cout << std::endl;
+  RETURN_IF_ERROR(Init());
   const absl::flat_hash_map<int, NodeSet> yzd_last_result = GetLastIterationResult();
   absl::flat_hash_map<int, yzd::NodeSet> programl_dominators;
   int programl_dataflow_step_count;
@@ -40,6 +46,18 @@ labm8::Status YZDDominance::ValidateWithPrograml() {
   // if (!(program_graph.node(pp).type() == programl::Node::INSTRUCTION)) {
   //   continue;
   // }
+
+  // 以下这些是为了测试111
+  absl::flat_hash_map<int, yzd::NodeSet> programl_dominators_for_test;
+  int programl_dataflow_step_count_for_test;
+  for (const auto& pp : programl_dominance_analysis.GetEligibleRootNodes()) {
+    RETURN_IF_ERROR(programl_dominance_analysis.ComputeDominators(
+        pp, &programl_dataflow_step_count_for_test, &programl_dominators_for_test));
+    std::cout << pp << " : result from pro(test): " << programl_dominators_for_test[pp]
+              << std::endl;
+  }
+  // 测试内容结束111
+
   for (const auto& pp : programl_dominance_analysis.GetEligibleRootNodes()) {
     RETURN_IF_ERROR(programl_dominance_analysis.ComputeDominators(pp, &programl_dataflow_step_count,
                                                                   &programl_dominators));
@@ -51,13 +69,14 @@ labm8::Status YZDDominance::ValidateWithPrograml() {
       if (!(yzd_iter->second == programl_dominators[pp])) {
         std::cout << "inconsistency occurs! program_point is: " << pp << std::endl;
         std::cout << "result from yzd: " << yzd_iter->second << std::endl;
-        std::cout << "result from programl: " << programl_dominators[pp] << std::endl;
-        std::cout << "kill of this pp: " << kills[pp] << std::endl;
+        std::cout << "result from pro: " << programl_dominators[pp] << std::endl;
+        std::cout << "diff = " << yzd_iter->second - programl_dominators[pp] << std::endl;
+        continue;
         return labm8::Status(labm8::error::ABORTED, "The validation did not pass!");
       } else {
         std::cout << "sim for pp: " << pp << std::endl;
         std::cout << "result from yzd: " << yzd_iter->second << std::endl;
-        std::cout << "result from programl: " << programl_dominators[pp] << std::endl;
+        std::cout << "result from pro: " << programl_dominators[pp] << std::endl;
         sim_count++;
       }
     }
