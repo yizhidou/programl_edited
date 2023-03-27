@@ -8,6 +8,7 @@
 // #include "programl/graph/analysis/analysis.h"
 #include "programl/graph/analysis/yzd_liveness.h"
 #include "programl/graph/analysis/yzd_dominance.h"
+#include "programl/graph/analysis/yzd_reachability.h"
 #include "programl/graph/analysis/yzd_utils.h"
 #include "programl/proto/program_graph.pb.h"
 #include "programl/util/stdin_fmt.h"
@@ -22,7 +23,9 @@ Usage:
     validate <task_name[yzd_liveness, yzd_dominance]> <max_iteration> < /path/to/program_graph.pb)";
 
 static std::unordered_map<std::string, yzd::TaskName> const taskname_table = {
-    {"yzd_liveness", yzd::yzd_liveness}, {"yzd_dominance", yzd::yzd_dominance}};
+    {"yzd_liveness", yzd::yzd_liveness}, 
+    {"yzd_dominance", yzd::yzd_dominance},
+    {"yzd_reachability", yzd::yzd_reachability}};
 
 int main(int argc, char** argv) {
   gflags::SetVersionString(PROGRAML_VERSION);
@@ -51,6 +54,12 @@ int main(int argc, char** argv) {
     std::cout << "We are validating yzd_dominance~" << std::endl;
     status = yzd::YZDDominance(graph, yzd_setting).ValidateWithPrograml();
   }
+  else if (task_name=="yzd_reachability")
+  {
+    std::cout << "We are validating yzd_reachability~" << std::endl;
+    status = yzd::YZDReachability(graph, yzd_setting).ValidateWithPrograml();
+  }
+  
   
   
   if (!status.ok()) {

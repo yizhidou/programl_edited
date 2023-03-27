@@ -29,6 +29,7 @@ cc_library(
         ":subexpressions",
         ":yzd_liveness",
         ":yzd_dominance",
+        "yzd_reachability",
         "//programl/proto:programl_cc",
         "@labm8//labm8/cpp:status",
     ],
@@ -101,6 +102,7 @@ cc_library(
         ":data_flow_pass",
         "//programl/graph:features",
         "//programl/proto:programl_cc",
+        "@com_google_absl//absl/container:flat_hash_set",
         "@labm8//labm8/cpp:logging",
         "@labm8//labm8/cpp:status",
     ],
@@ -172,5 +174,16 @@ cc_library(
     deps = [
         ":yzd_analysis_base",
         ":dominance"
+    ]
+)
+
+cc_library(
+    name = "yzd_reachability",
+    srcs = ["yzd_reachability.cc"],
+    hdrs = ["yzd_reachability.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":yzd_analysis_base",
+        ":reachability"
     ]
 )

@@ -90,14 +90,14 @@ NodeSet AnalysisBase::MeetOperation(const int iterIdx,
                             ? NodeSet()
                             : NodeSet(interested_points.begin(), interested_points.end());
   for (const int t : targetNodeList) {
-    std::cout << "before meet: " << stored_nodesets[result_pointers[iterIdx][t]] << std::endl;
+    // std::cout << "before meet: " << stored_nodesets[result_pointers[iterIdx][t]] << std::endl;
     if (analysis_setting.may_or_must == may) {
       meet_result |= stored_nodesets[result_pointers[iterIdx][t]];
     } else {
       meet_result &= stored_nodesets[result_pointers[iterIdx][t]];
     }
   }
-  std::cout << "after meet: " << meet_result << std::endl;
+  // std::cout << "after meet: " << meet_result << std::endl;
   return meet_result;
 }
 
@@ -117,7 +117,7 @@ labm8::Status AnalysisBase::Init() {
     work_list.pop();
     int cur_iter_idx = cur_item.iter_idx, cur_node_idx = cur_item.node_idx;
     total_iter_num = cur_iter_idx;
-    std::cout << "=======cur_node_idx: " << cur_node_idx << std::endl;
+    // std::cout << "=======cur_node_idx: " << cur_node_idx << std::endl;
 
     if (cur_iter_idx > analysis_setting.max_iteration) {
       return labm8::Status(labm8::error::FAILED_PRECONDITION,
@@ -125,9 +125,9 @@ labm8::Status AnalysisBase::Init() {
     }
 
     if (cur_iter_idx > result_pointers.size() - 1) {
-      std::cout << "~~~~~~~~~~~~~~~~~~~~iteration " << cur_iter_idx << "~~~~~~~~~~~~~~~~~"
-                << std::endl;
-      PrintWorkList(work_list);
+      // std::cout << "~~~~~~~~~~~~~~~~~~~~iteration " << cur_iter_idx << "~~~~~~~~~~~~~~~~~"
+      //           << std::endl;
+      // PrintWorkList(work_list);
       result_pointers.push_back(
           result_pointers.back());  // copy the result of the last iteration and push into result.
     }
@@ -135,10 +135,10 @@ labm8::Status AnalysisBase::Init() {
         (analysis_setting.direction == forward)
             ? adjacencies.control_reverse_adj_list[cur_node_idx]  // meet all predecessors
             : adjacencies.control_adj_list[cur_node_idx];         // meet all successors
-    std::cout << " neighbors are: " << neighbor_nodes << std::endl;
-    for (const auto n : neighbor_nodes) {
-      std::cout << n << ": " << stored_nodesets[result_pointers[cur_iter_idx - 1][n]] << std::endl;
-    }
+    // std::cout << " neighbors are: " << neighbor_nodes << std::endl;
+    // for (const auto n : neighbor_nodes) {
+    //   std::cout << n << ": " << stored_nodesets[result_pointers[cur_iter_idx - 1][n]] << std::endl;
+    // }
 
     NodeSet meeted_nodeset;
     if (!neighbor_nodes.empty()) {
@@ -166,7 +166,7 @@ labm8::Status AnalysisBase::Init() {
     NodeSet updated_bitvector =
         gens[cur_node_idx] | temp;  // 这两句是真的有点奇怪，合并到一起就会提示有错
     if (updated_bitvector == stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]]) {
-      std::cout << "not update, so continue! cur_bv = " << updated_bitvector << std::endl;
+      // std::cout << "not update, so continue! cur_bv = " << updated_bitvector << std::endl;
       continue;
     }
     // assert((!temp.contains(cur_node_idx)) &&
@@ -215,9 +215,9 @@ labm8::Status AnalysisBase::Init() {
     //           << std::endl;
 
     // add predecessors/successors to worklist
-    std::cout << "update! before update: "
-              << stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]] << std::endl;
-    std::cout << "update! after  update: " << updated_bitvector << std::endl;
+    // std::cout << "update! before update: "
+    //           << stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]] << std::endl;
+    // std::cout << "update! after  update: " << updated_bitvector << std::endl;
     result_pointers[cur_iter_idx][cur_node_idx] = stored_nodesets.size() - 1;
     const auto& affected_list =
         analysis_setting.direction == forward
@@ -227,7 +227,7 @@ labm8::Status AnalysisBase::Init() {
     for (auto affted_node : affected_list) {
       work_list.emplace(cur_iter_idx + 1, affted_node);
     }
-    std::cout << "affected nodes are added to worklist: " << affected_list << std::endl;
+    // std::cout << "affected nodes are added to worklist: " << affected_list << std::endl;
   }
   if (analysis_setting.task_name == yzd::yzd_liveness) {
     std::cout << "num_iteration_liveness " << total_iter_num << std::endl;

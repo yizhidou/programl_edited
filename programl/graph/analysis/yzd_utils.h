@@ -35,7 +35,7 @@ std::ostream& operator<<(std::ostream& os, const std::vector<int>& intVec);
 // std::ostream& operator<<(std::ostream& os, const std::queue<WorklistItem>& workList);
 void PrintWorkList(const std::queue<WorklistItem>& workList);
 
-enum TaskName { yzd_liveness, yzd_dominance };
+enum TaskName { yzd_liveness, yzd_dominance, yzd_reachability};
 enum Direction { forward, backward };
 enum MayOrMust { may, must };
 enum InitializeMode { allzeros, allones };
@@ -58,6 +58,10 @@ struct AnalysisSetting {
         direction = forward;
         may_or_must = must;
         initialize_mode = allones;
+      case yzd_reachability:
+        direction = backward;
+        may_or_must = may;
+        initialize_mode = allzeros;
       default:
         break;
     }

@@ -85,6 +85,40 @@ Status ReachabilityAnalysis::RunOne(int rootNode, ProgramGraphFeatures* features
   return Status::OK;
 }
 
+labm8::Status ReachabilityAnalysis::CalculateResultFromRootNode(const int rootNode) {  // this is added by yzd for verification
+    // std::cout << "we are good at line 89, reachability.cc" << std::endl;
+    _result_from_one_root.clear();
+    // std::cout << "we are good at line 91, reachability.cc" << std::endl;
+    // vector<bool> visited(graph().node_size(), false);
+
+    int dataFlowStepCount = 0;
+    std::queue<std::pair<int, int>> q;
+    q.push({rootNode, 1});
+
+    const vector<vector<int>>& cfg = adjacencies().control;
+    DCHECK(cfg.size() == graph().node_size()) << "CFG size: " << cfg.size() << " != "
+                                              << " graph size: " << graph().node_size();
+
+    int activeNodeCount = 0;
+    while (!q.empty()) {
+      int current = q.front().first;
+      dataFlowStepCount = q.front().second;
+      q.pop();
+
+      // visited[current] = true;
+      _result_from_one_root.insert(current);
+      ++activeNodeCount;
+
+      for (int neighbour : cfg[current]) {
+        // if (!visited[neighbour]) {
+        if (_result_from_one_root.find(neighbour) == _result_from_one_root.end()){
+          q.push({neighbour, dataFlowStepCount + 1});
+        }
+      }
+    }
+    return Status::OK;
+  }
+
 }  // namespace analysis
 }  // namespace graph
 }  // namespace programl

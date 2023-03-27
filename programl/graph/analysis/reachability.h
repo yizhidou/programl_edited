@@ -15,6 +15,7 @@
 // limitations under the License.
 #pragma once
 
+#include "absl/container/flat_hash_set.h"
 #include "labm8/cpp/status.h"
 #include "programl/graph/analysis/data_flow_pass.h"
 #include "programl/proto/program_graph.pb.h"
@@ -36,6 +37,12 @@ class ReachabilityAnalysis : public RoodNodeDataFlowAnalysis {
   virtual std::vector<int> GetEligibleRootNodes() override;
 
   virtual labm8::Status Init() override;
+  labm8::Status CalculateResultFromRootNode(int rootNode);  // This is added by yzd for verifying
+                                                            // her own calculation result
+  absl::flat_hash_set<int> GetResultFromRootNode(){return _result_from_one_root;}
+
+ private:
+  absl::flat_hash_set<int> _result_from_one_root;
 };
 
 }  // namespace analysis
