@@ -37,6 +37,8 @@ class AnalysisBase {
 
   NodeSet MeetOperation(const int iterIdx, const NodeSet& targetNodeList);
 
+  absl::flat_hash_map<int, int> _top_order;
+
  public:
   explicit AnalysisBase(const programl::ProgramGraph& pg, const AnalysisSetting& s)
       : program_graph(pg), analysis_setting(s) {}
