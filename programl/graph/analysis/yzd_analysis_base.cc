@@ -33,7 +33,7 @@ labm8::Status AnalysisBase::InitSettings() {
     }
 
   } else if (analysis_setting.initialize_mode == allones) {
-    stored_nodesets.emplace_back(interested_points.begin(), interested_points.end());
+    // stored_nodesets.emplace_back(interested_points.begin(), interested_points.end());
     // std::vector<int> root_nodes;
     for (const int& pp : program_points) {
       if (((adjacencies.control_reverse_adj_list[pp].size() == 0) &&
