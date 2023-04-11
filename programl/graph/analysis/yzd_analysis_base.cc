@@ -20,6 +20,35 @@ labm8::Status AnalysisBase::InitSettings() {
                          "The graph has either none program points or none interested points");
   }
 
+  const auto& adj = analysis_setting.direction == forward ? adjacencies.control_adj_list
+                                                          : adjacencies.control_reverse_adj_list;
+  const auto& reverse_adj = analysis_setting.direction == forward
+                                ? adjacencies.control_reverse_adj_list
+                                : adjacencies.control_adj_list;
+  std::vector<int> root_list = GetRootList(adj);
+  std::cout << "the number of pp is: " << GetNumProgramPoints() << std::endl;
+  std::cout << "the number of roots is: " << root_list.size() << std::endl;
+  int num_be = 0, num_nodes_in_po_list = 0;
+  _top_order.reserve(GetNumProgramPoints());
+  for (const int root_node : root_list) {
+    std::pair<std::vector<int>, int> po_and_num_be =
+        PostOrderAndNumBackEdgeFromOneRoot(adj, root_node);
+    num_be += po_and_num_be.second;
+    const auto& po_list = po_and_num_be.first;
+    num_nodes_in_po_list += po_list.size();
+    for (int i = po_list.size() - 1; i > -1; i--) {
+      _top_order[i] = _top_order.size();
+    }
+    _root_subgraph[root_node] = NodeSet(po_list.begin(), po_list.end());
+  }
+  if (num_nodes_in_po_list !=
+      GetNumProgramPoints()) {  // 就是一个图有多个root的情况，目前还没办法处理
+    std::cout << "num_nodes_in_po_list = " << num_nodes_in_po_list
+              << "; num_pp = " << GetNumProgramPoints() << std::endl;
+    return labm8::Status(labm8::error::FAILED_PRECONDITION,
+                         "The graph has multiple root! We currently cannot handle this...");
+  }
+
   // add result of iteration 0 into result_pointers.
   absl::flat_hash_map<int, int> result_pointer_zero_iteration;
   result_pointer_zero_iteration.reserve(GetNumProgramPoints());
@@ -33,38 +62,51 @@ labm8::Status AnalysisBase::InitSettings() {
     }
 
   } else if (analysis_setting.initialize_mode == allones) {
-    // stored_nodesets.emplace_back(interested_points.begin(), interested_points.end());
-    // std::vector<int> root_nodes;
-    for (const int& pp : program_points) {
-      if (((adjacencies.control_reverse_adj_list[pp].size() == 0) &&
-           analysis_setting.direction == forward) |
-          ((adjacencies.control_adj_list[pp].size() == 0) &&
-           analysis_setting.direction == backward)) {
-        std::cout << "root node spotted! " << pp << std::endl;
-        // root_nodes.emplace_back(pp);
-        absl::flat_hash_set<int> initial_value_for_root = {pp};
-        stored_nodesets.push_back(initial_value_for_root);
-        result_pointer_zero_iteration[pp] = stored_nodesets.size() - 1;
-        NodeSet subgraph_nodeset_from_root =
-            SubgraphNodesFromRoot(pp, adjacencies, analysis_setting.direction);
-
-        std::cout << "rootnode " << pp
-                  << "! corresponding subgraph nodes are: " << subgraph_nodeset_from_root
-                  << std::endl;
-        stored_nodesets.emplace_back(subgraph_nodeset_from_root.begin(),
-                                     subgraph_nodeset_from_root.end());
-        for (int node_in_this_subgraph : subgraph_nodeset_from_root) {
-          if (node_in_this_subgraph == pp) {
-            continue;
-          }
-          result_pointer_zero_iteration[node_in_this_subgraph] = stored_nodesets.size() - 1;
+    for (auto iter = _root_subgraph.begin(); iter != _root_subgraph.end(); ++iter) {
+      const auto& root_node = iter->first;
+      const auto& subgraph_nodeset = iter->second;
+      NodeSet initial_value_for_root = {root_node};
+      stored_nodesets.push_back(initial_value_for_root);
+      result_pointer_zero_iteration[root_node] = stored_nodesets.size() - 1;
+      stored_nodesets.emplace_back(subgraph_nodeset);
+      for (int node_in_subgraph : subgraph_nodeset) {
+        if (node_in_subgraph == root_node) {
+          continue;
         }
+        result_pointer_zero_iteration[node_in_subgraph] = stored_nodesets.size() - 1;
       }
     }
-    for (const int& pp : program_points) {
-      std::cout << "(yzd) the initial value of " << pp << " : "
-                << stored_nodesets[result_pointer_zero_iteration[pp]] << std::endl;
-    }
+    // the old version
+    // for (const int& pp : program_points) {
+    //   if (((adjacencies.control_reverse_adj_list[pp].size() == 0) &&
+    //        analysis_setting.direction == forward) |
+    //       ((adjacencies.control_adj_list[pp].size() == 0) &&
+    //        analysis_setting.direction == backward)) {
+    //     std::cout << "root node spotted! " << pp << std::endl;
+    //     // root_nodes.emplace_back(pp);
+    //     absl::flat_hash_set<int> initial_value_for_root = {pp};
+    //     stored_nodesets.push_back(initial_value_for_root);
+    //     result_pointer_zero_iteration[pp] = stored_nodesets.size() - 1;
+    //     NodeSet subgraph_nodeset_from_root =
+    //         SubgraphNodesFromRoot(pp, adjacencies, analysis_setting.direction);
+
+    //     std::cout << "rootnode " << pp
+    //               << "! corresponding subgraph nodes are: " << subgraph_nodeset_from_root
+    //               << std::endl;
+    //     stored_nodesets.emplace_back(subgraph_nodeset_from_root.begin(),
+    //                                  subgraph_nodeset_from_root.end());
+    //     for (int node_in_this_subgraph : subgraph_nodeset_from_root) {
+    //       if (node_in_this_subgraph == pp) {
+    //         continue;
+    //       }
+    //       result_pointer_zero_iteration[node_in_this_subgraph] = stored_nodesets.size() - 1;
+    //     }
+    //   }
+    // }
+    // for (const int& pp : program_points) {
+    //   std::cout << "(yzd) the initial value of " << pp << " : "
+    //             << stored_nodesets[result_pointer_zero_iteration[pp]] << std::endl;
+    // }
 
   } else {
     return labm8::Status(labm8::error::UNIMPLEMENTED,
@@ -137,7 +179,8 @@ labm8::Status AnalysisBase::Init() {
             : adjacencies.control_adj_list[cur_node_idx];         // meet all successors
     // std::cout << " neighbors are: " << neighbor_nodes << std::endl;
     // for (const auto n : neighbor_nodes) {
-    //   std::cout << n << ": " << stored_nodesets[result_pointers[cur_iter_idx - 1][n]] << std::endl;
+    //   std::cout << n << ": " << stored_nodesets[result_pointers[cur_iter_idx - 1][n]] <<
+    //   std::endl;
     // }
 
     NodeSet meeted_nodeset;

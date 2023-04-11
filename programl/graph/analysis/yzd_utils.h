@@ -82,66 +82,13 @@ struct AnalysisSetting {
 NodeSet SubgraphNodesFromRoot(const int& rootNode, const Adjacencies& adjacencies,
                               const Direction& direction);
 
-NodeSet NodeListToNodeSet(const std::vector<int>& node_list) {
-  NodeSet result_nodeset(node_list.begin(), node_list.end());
-  return result_nodeset;
-}
 
 absl::flat_hash_map<int, int> NodeListToOrderMap(const std::vector<int>& node_list,
-                                                 bool if_reverse) {
-  absl::flat_hash_map<int, int> result_map;
-  int num_node = node_list.size();
-  result_map.reserve(num_node);
-
-  if (if_reverse) {
-    for (int idx = 0; idx < num_node; idx++) {
-      result_map[node_list[idx]] = num_node - idx;
-    }
-  } else {
-    for (int idx = 0; idx < num_node; idx++) {
-      result_map[node_list[idx]] = idx;
-    }
-  }
-  return result_map;
-}
+                                                 bool if_reverse);
 
 std::vector<int> GetRootList(
-    const absl::flat_hash_map<int, absl::flat_hash_set<int>>& reverse_adj) {
-  std::vector<int> root_list;
-  for (auto iter = reverse_adj.begin(); iter != reverse_adj.end(); ++iter) {
-    if (iter->second.size() == 0) {
-      root_list.emplace_back(iter->first);
-    }
-  }
-  return root_list;
-}
+    const absl::flat_hash_map<int, absl::flat_hash_set<int>>& reverse_adj);
 
-std::pair<std::vector<int>, int> PostOrderAndNumBackEdge(
-    const absl::flat_hash_map<int, absl::flat_hash_set<int>>& adj, const int rootnode) {
-  absl::flat_hash_map<int, int> color_map;
-  int num_back_edge = 0;
-  std::vector<int> post_order_list;
-  color_map.reserve(adj.size());
-  for (auto iter = adj.begin(); iter != adj.end(); ++iter) {
-    color_map[iter->first] = -1;  // white
-  }
-  std::function<void(int)> dfs;
-  dfs = [&](int start_node) -> void {
-    color_map[start_node] = 0;  // grey
-    const auto adj_iter = adj.find(start_node);
-    if (adj_iter != adj.end()) {
-      const auto& adj_nodes = adj_iter->second;
-      for (const auto child_node : adj_nodes) {
-        if (color_map[child_node] == -1) {  // white
-          dfs(start_node);
-        } else if (color_map[child_node] == 0) {  // grey
-          num_back_edge++;
-        }
-      }
-      color_map[start_node] = 1;  // black
-      post_order_list.push_back(start_node);
-    }
-  };
-  return std::make_pair(post_order_list, num_back_edge);
-}
+std::pair<std::vector<int>, int> PostOrderAndNumBackEdgeFromOneRoot(
+    const absl::flat_hash_map<int, absl::flat_hash_set<int>>& adj, const int rootnode);
 }  // namespace yzd

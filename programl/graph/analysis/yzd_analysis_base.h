@@ -39,6 +39,8 @@ class AnalysisBase {
 
   absl::flat_hash_map<int, int> _top_order;
 
+  absl::flat_hash_map<int, NodeSet> _root_subgraph;
+
  public:
   explicit AnalysisBase(const programl::ProgramGraph& pg, const AnalysisSetting& s)
       : program_graph(pg), analysis_setting(s) {}
