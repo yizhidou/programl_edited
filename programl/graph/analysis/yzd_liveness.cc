@@ -13,6 +13,12 @@ void YZDLiveness::ParseProgramGraph() {  // 需要把program_points 和 interest
 
       adjacencies.control_adj_list[edge.source()].insert(edge.target());
       adjacencies.control_reverse_adj_list[edge.target()].insert(edge.source());
+      if (!adjacencies.control_adj_list.contains(edge.target())) {
+        adjacencies.control_adj_list[edge.target()] = {};
+      }
+      if (!adjacencies.control_reverse_adj_list.contains(edge.source())) {
+        adjacencies.control_reverse_adj_list[edge.source()] = {};
+      }
       program_points.insert(edge.source());
       program_points.insert(edge.target());
     } else if (edge.flow() == programl::Edge::DATA) {

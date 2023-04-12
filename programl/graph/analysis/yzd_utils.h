@@ -58,6 +58,7 @@ struct AnalysisSetting {
         direction = forward;
         may_or_must = must;
         initialize_mode = allones;
+        break;
       case yzd_reachability:
         direction = backward;
         may_or_must = may;

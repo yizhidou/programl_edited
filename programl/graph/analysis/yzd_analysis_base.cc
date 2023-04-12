@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <chrono>
 #include <cstdlib>
 #include <iostream>
 
@@ -25,19 +26,21 @@ labm8::Status AnalysisBase::InitSettings() {
   const auto& reverse_adj = analysis_setting.direction == forward
                                 ? adjacencies.control_reverse_adj_list
                                 : adjacencies.control_adj_list;
-  std::vector<int> root_list = GetRootList(adj);
-  std::cout << "the number of pp is: " << GetNumProgramPoints() << std::endl;
-  std::cout << "the number of roots is: " << root_list.size() << std::endl;
-  int num_be = 0, num_nodes_in_po_list = 0;
+  std::vector<int> root_list = GetRootList(reverse_adj);
+  // std::cout << "the number of pp is: " << GetNumProgramPoints() << std::endl;
+  // std::cout << "the number of roots is: " << root_list.size() << std::endl;
+  int num_nodes_in_po_list = 0;
   _top_order.reserve(GetNumProgramPoints());
+  std::cout << "The top order: " << std::endl;
   for (const int root_node : root_list) {
     std::pair<std::vector<int>, int> po_and_num_be =
         PostOrderAndNumBackEdgeFromOneRoot(adj, root_node);
-    num_be += po_and_num_be.second;
+    _num_be += po_and_num_be.second;
     const auto& po_list = po_and_num_be.first;
     num_nodes_in_po_list += po_list.size();
     for (int i = po_list.size() - 1; i > -1; i--) {
-      _top_order[i] = _top_order.size();
+      _top_order[po_list[i]] = _top_order.size();
+      std::cout << "node: " << po_list[i] << "; top order: " << _top_order.size() - 1 << std::endl;
     }
     _root_subgraph[root_node] = NodeSet(po_list.begin(), po_list.end());
   }
@@ -48,6 +51,7 @@ labm8::Status AnalysisBase::InitSettings() {
     return labm8::Status(labm8::error::FAILED_PRECONDITION,
                          "The graph has multiple root! We currently cannot handle this...");
   }
+  std::cout << "the number of back edges is: " << _num_be << std::endl;
 
   // add result of iteration 0 into result_pointers.
   absl::flat_hash_map<int, int> result_pointer_zero_iteration;
@@ -89,7 +93,6 @@ labm8::Status AnalysisBase::InitSettings() {
     //     result_pointer_zero_iteration[pp] = stored_nodesets.size() - 1;
     //     NodeSet subgraph_nodeset_from_root =
     //         SubgraphNodesFromRoot(pp, adjacencies, analysis_setting.direction);
-
     //     std::cout << "rootnode " << pp
     //               << "! corresponding subgraph nodes are: " << subgraph_nodeset_from_root
     //               << std::endl;
@@ -144,22 +147,29 @@ NodeSet AnalysisBase::MeetOperation(const int iterIdx,
 }
 
 labm8::Status AnalysisBase::Init() {
+  auto time_start = std::chrono::high_resolution_clock::now();
   ParseProgramGraph();              // 需要把program_points 和 interested_points 给算好;
                                     // adjacencies也算好。这是一个纯虚函数。
   RETURN_IF_ERROR(InitSettings());  // 这个主要作用往stored_result_set里加初始的结果
 
   // add all nodes in worklist
+  std::cout << "till yzd_analysis_base.cc line 154, everything is fine" << std::endl;
   for (const int pp : program_points) {
+    std::cout << "in the initialization of work_list, " << pp << " is going to be emplaced"
+              << std::endl;
+    std::cout << "its order in topology is: " << _top_order[pp] << std::endl;
     work_list.emplace(1, pp);
   }
   // int continued_num = 0;
   int total_iter_num = 0;
   while (!work_list.empty()) {
-    WorklistItem cur_item = work_list.front();
+    // WorklistItem cur_item = work_list.front(); // 非优先级队列的情况
+    WorklistItem cur_item = work_list.top();
     work_list.pop();
     int cur_iter_idx = cur_item.iter_idx, cur_node_idx = cur_item.node_idx;
     total_iter_num = cur_iter_idx;
-    // std::cout << "=======cur_node_idx: " << cur_node_idx << std::endl;
+    std::cout << "=======cur_node_idx: " << cur_node_idx
+              << "; top order: " << _top_order[cur_node_idx] << std::endl;
 
     if (cur_iter_idx > analysis_setting.max_iteration) {
       return labm8::Status(labm8::error::FAILED_PRECONDITION,
@@ -277,7 +287,9 @@ labm8::Status AnalysisBase::Init() {
   } else if (analysis_setting.task_name == yzd::yzd_dominance) {
     std::cout << "num_iteration_dominance " << total_iter_num << std::endl;
   }
-
+  auto time_end = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(time_end - time_start);
+  std::cout << "Time taken by function: " << duration.count() << " microseconds" << std::endl;
   return labm8::Status::OK;
 }
 

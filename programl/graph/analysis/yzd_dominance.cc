@@ -12,6 +12,12 @@ void YZDDominance::ParseProgramGraph() {  // 需要把program_points 和 interes
     if (cur_edge.flow() == programl::Edge::CONTROL) {
       adjacencies.control_adj_list[cur_edge.source()].insert(cur_edge.target());
       adjacencies.control_reverse_adj_list[cur_edge.target()].insert(cur_edge.source());
+      if (!adjacencies.control_adj_list.contains(cur_edge.target())){
+        adjacencies.control_adj_list[cur_edge.target()] = {};
+      }
+      if (!adjacencies.control_reverse_adj_list.contains(cur_edge.source())){
+        adjacencies.control_reverse_adj_list[cur_edge.source()] = {};
+      }
       program_points.insert(cur_edge.source());
       program_points.insert(cur_edge.target());
       interested_points.insert(cur_edge.source());

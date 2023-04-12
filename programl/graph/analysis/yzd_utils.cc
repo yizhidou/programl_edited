@@ -176,13 +176,11 @@ std::vector<int> GetRootList(
   std::cout << "At the begining of GetRootList, the size of reverse_adj is: " << reverse_adj.size()
             << std::endl;
   for (auto iter = reverse_adj.begin(); iter != reverse_adj.end(); ++iter) {
-    std::cout << "checking node " << iter->first << ", its in-degree is: " << iter->second.size()
-              << std::endl;
     if (iter->second.size() == 0) {
       root_list.emplace_back(iter->first);
     }
   }
-  std::cout << "in GetRootList, the number of roots is: " << root_list.size() << std::endl;
+  std::cout << "in GetRootList, roots are: " << root_list << std::endl;
   return root_list;
 }
 
@@ -195,24 +193,27 @@ std::pair<std::vector<int>, int> PostOrderAndNumBackEdgeFromOneRoot(
   for (auto iter = adj.begin(); iter != adj.end(); ++iter) {
     color_map[iter->first] = -1;  // white
   }
-  std::function<void(int)> dfs;
-  std::cout << "root node spoted! " << rootnode << std::endl;
-  dfs = [&](int start_node) -> void {
-    std::cout << "node " << start_node << " is being visited" << std::endl;
+  std::function<void(const int&)> dfs;
+  dfs = [&](const int& start_node) -> void {
     color_map[start_node] = 0;  // grey
     const auto adj_iter = adj.find(start_node);
     if (adj_iter != adj.end()) {
       const auto& adj_nodes = adj_iter->second;
+      // std::cout << "the number of its children is: " << adj_nodes.size() << std::endl;
       for (const auto child_node : adj_nodes) {
         if (color_map[child_node] == -1) {  // white
-          dfs(start_node);
+          // std::cout << "child " << child_node
+          //           << " has not been visited, so we are going to visit it!" << std::endl;
+          dfs(child_node);
         } else if (color_map[child_node] == 0) {  // grey
           num_back_edge++;
+          std::cout << "Back edge spotted! (" << start_node << ", " << child_node << ")"
+                    << std::endl;
         }
       }
       color_map[start_node] = 1;  // black
       post_order_list.push_back(start_node);
-      std::cout << "node " << start_node << " has been visted!" << std::endl;
+      // std::cout << "node " << start_node << " has been visted!" << std::endl;
     }
   };
   dfs(rootnode);
