@@ -19,36 +19,28 @@ class AnalysisBase {
   // each element of this vector corresponds to the result of one iteration
   std::vector<absl::flat_hash_map<int, int>> result_pointers;
   std::vector<const NodeSet> stored_nodesets;
+  absl::flat_hash_map<int, int> _top_order_map;
+  std::vector<int> _top_order_list;
 
-  // std::function<bool(const WorklistItem&, const WorklistItem&)> compare =
-  //     [&](const WorklistItem& lhs, const WorklistItem& rhs) -> bool {
-  //   std::cout << "we have entered compare!" << std::endl;
-  //   if (lhs.iter_idx < rhs.iter_idx) {
-  //     return true;
-  //   }
-  //   if (_top_order[lhs.node_idx] < _top_order[rhs.node_idx]) {
-  //     std::cout << lhs.node_idx << " is less than " << rhs.node_idx << std::endl;
-  //     return true;
-  //   }
-  //   std::cout << lhs.node_idx << " is more than " << rhs.node_idx << std::endl;
-  //   return false;
-  // };
+  absl::flat_hash_map<int, NodeSet> _root_subgraph;
 
-  bool compare(const WorklistItem& lhs, const WorklistItem& rhs){
+  int _num_be = 0;  // number of back edges
+
+  std::function<bool(const WorklistItem&, const WorklistItem&)> compare =
+      [&](const WorklistItem& lhs, const WorklistItem& rhs) -> bool {
     std::cout << "we have entered compare!" << std::endl;
     if (lhs.iter_idx < rhs.iter_idx) {
-      return true;
+      return false;
     }
-    if (_top_order[lhs.node_idx] < _top_order[rhs.node_idx]) {
+    if (_top_order_map[lhs.node_idx] < _top_order_map[rhs.node_idx]) {
       std::cout << lhs.node_idx << " is less than " << rhs.node_idx << std::endl;
-      return true;
+      return false;
     }
     std::cout << lhs.node_idx << " is more than " << rhs.node_idx << std::endl;
-    return false;
-  }
-
+    return true;
+  };
+  // std::priority_queue<WorklistItem, std::vector<WorklistItem>, decltype(compare)> work_list{compare};
   // std::queue<WorklistItem> work_list;
-  std::priority_queue<WorklistItem, std::vector<WorklistItem>, decltype(&AnalysisBase::compare)> work_list;
 
  protected:
   const programl::ProgramGraph& program_graph;
@@ -66,17 +58,13 @@ class AnalysisBase {
 
   NodeSet MeetOperation(const int iterIdx, const NodeSet& targetNodeList);
 
-  absl::flat_hash_map<int, int> _top_order;
-
-  absl::flat_hash_map<int, NodeSet> _root_subgraph;
-
-  int _num_be = 0;  // number of back edges
-
  public:
   explicit AnalysisBase(const programl::ProgramGraph& pg, const AnalysisSetting& s)
       : program_graph(pg), analysis_setting(s) {}
 
-  labm8::Status Init();
+  labm8::Status Init_async();
+  labm8::Status Init_sync();
+
   labm8::Status Run(programl::ResultsEveryIteration* resultsOfAllIterations);
 
   int GetNumIteration() const { return result_pointers.size(); }

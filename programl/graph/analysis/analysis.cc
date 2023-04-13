@@ -64,7 +64,7 @@ Status RunAnalysis(const string& analysisName, int maxIteration, const ProgramGr
                    ResultsEveryIteration* resultsOfAllIterations) {
   // yzd::AnalysisSetting yzd_setting;
   if (analysisName == "yzd_liveness") {
-    yzd::AnalysisSetting yzd_setting(yzd::TaskName::yzd_liveness, maxIteration);
+    yzd::AnalysisSetting yzd_setting(yzd::TaskName::yzd_liveness, maxIteration, yzd::SyncOrAsync::async);
     return YZDRun<yzd::YZDLiveness>(yzd_setting, graph, resultsOfAllIterations);
   } else {
     return Status(error::Code::INVALID_ARGUMENT, "Invalid analysis: {}", analysisName);

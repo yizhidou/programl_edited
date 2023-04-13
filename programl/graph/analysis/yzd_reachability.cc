@@ -31,7 +31,12 @@ labm8::Status YZDReachability::ValidateWithPrograml() {
   // std::cout << "we are good at line 25, validate.cc" << std::endl;
   RETURN_IF_ERROR(programl_reachability_analysis.Init());
   // std::cout << "we are good at line 27, validate.cc" << std::endl;
-  RETURN_IF_ERROR(Init());
+  if (analysis_setting.sync_or_async == async){
+    RETURN_IF_ERROR(Init_async());
+  }
+  else{
+    RETURN_IF_ERROR(Init_sync());
+  }
   // std::cout << "we are good at line 29, validate.cc" << std::endl;
   const absl::flat_hash_map<int, NodeSet> yzd_last_result = GetLastIterationResult();
   //   absl::flat_hash_map<int, yzd::NodeSet> programl_reachability_result;

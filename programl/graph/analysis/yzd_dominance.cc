@@ -38,7 +38,12 @@ labm8::Status YZDDominance::ValidateWithPrograml() {
   //   std::cout << item << ", ";
   // }
   // std::cout << std::endl;
-  RETURN_IF_ERROR(Init());
+  if (analysis_setting.sync_or_async == async){
+    RETURN_IF_ERROR(Init_async());
+  }
+  else{
+    RETURN_IF_ERROR(Init_sync());
+  }
   const absl::flat_hash_map<int, NodeSet> yzd_last_result = GetLastIterationResult();
   absl::flat_hash_map<int, yzd::NodeSet> programl_dominators;
   int programl_dataflow_step_count;

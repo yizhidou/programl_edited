@@ -39,15 +39,17 @@ enum TaskName { yzd_liveness, yzd_dominance, yzd_reachability };
 enum Direction { forward, backward };
 enum MayOrMust { may, must };
 enum InitializeMode { allzeros, allones };
+enum SyncOrAsync {sync, async};
 
 struct AnalysisSetting {
   TaskName task_name;
   Direction direction;
   MayOrMust may_or_must;
   InitializeMode initialize_mode;
+  SyncOrAsync sync_or_async;
   int max_iteration;
-  AnalysisSetting(const TaskName taskName, int maxIteration)
-      : task_name(taskName), max_iteration(maxIteration) {
+  AnalysisSetting(const TaskName taskName, int maxIteration, const SyncOrAsync syncOrAsync)
+      : task_name(taskName), max_iteration(maxIteration), sync_or_async(syncOrAsync) {
     switch (task_name) {
       case yzd_liveness:
         direction = backward;

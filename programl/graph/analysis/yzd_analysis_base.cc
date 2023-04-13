@@ -29,24 +29,27 @@ labm8::Status AnalysisBase::InitSettings() {
   std::vector<int> root_list = GetRootList(reverse_adj);
   // std::cout << "the number of pp is: " << GetNumProgramPoints() << std::endl;
   // std::cout << "the number of roots is: " << root_list.size() << std::endl;
-  int num_nodes_in_po_list = 0;
-  _top_order.reserve(GetNumProgramPoints());
+  // int num_nodes_in_po_list = 0;
+  _top_order_map.reserve(GetNumProgramPoints());
+  _top_order_list.reserve(GetNumProgramPoints());
   std::cout << "The top order: " << std::endl;
   for (const int root_node : root_list) {
     std::pair<std::vector<int>, int> po_and_num_be =
         PostOrderAndNumBackEdgeFromOneRoot(adj, root_node);
     _num_be += po_and_num_be.second;
     const auto& po_list = po_and_num_be.first;
-    num_nodes_in_po_list += po_list.size();
+    // num_nodes_in_po_list += po_list.size();
     for (int i = po_list.size() - 1; i > -1; i--) {
-      _top_order[po_list[i]] = _top_order.size();
-      std::cout << "node: " << po_list[i] << "; top order: " << _top_order.size() - 1 << std::endl;
+      _top_order_map[po_list[i]] = _top_order_map.size();
+      _top_order_list.push_back(po_list[i]);
+      std::cout << "node: " << po_list[i] << "; top order: " << _top_order_map.size() - 1
+                << std::endl;
     }
     _root_subgraph[root_node] = NodeSet(po_list.begin(), po_list.end());
   }
-  if (num_nodes_in_po_list !=
+  if (_top_order_map.size() !=
       GetNumProgramPoints()) {  // 就是一个图有多个root的情况，目前还没办法处理
-    std::cout << "num_nodes_in_po_list = " << num_nodes_in_po_list
+    std::cout << "_top_order_map.size = " << _top_order_map.size()
               << "; num_pp = " << GetNumProgramPoints() << std::endl;
     return labm8::Status(labm8::error::FAILED_PRECONDITION,
                          "The graph has multiple root! We currently cannot handle this...");
@@ -106,10 +109,10 @@ labm8::Status AnalysisBase::InitSettings() {
     //     }
     //   }
     // }
-    // for (const int& pp : program_points) {
-    //   std::cout << "(yzd) the initial value of " << pp << " : "
-    //             << stored_nodesets[result_pointer_zero_iteration[pp]] << std::endl;
-    // }
+    for (const int& pp : program_points) {
+      std::cout << "(yzd) the initial value of " << pp << " : "
+                << stored_nodesets[result_pointer_zero_iteration[pp]] << std::endl;
+    }
 
   } else {
     return labm8::Status(labm8::error::UNIMPLEMENTED,
@@ -120,8 +123,7 @@ labm8::Status AnalysisBase::InitSettings() {
   return labm8::Status::OK;
 }
 
-NodeSet AnalysisBase::MeetOperation(const int iterIdx,
-                                    const absl::flat_hash_set<int>& targetNodeList) {
+NodeSet AnalysisBase::MeetOperation(const int iterIdx, const NodeSet& targetNodeList) {
   // assert((iterIdx == result_pointers.size()) && "Here!");
   // assert(true==false);
   // std::cout << "In meet, iterIdx = " << iterIdx
@@ -146,30 +148,34 @@ NodeSet AnalysisBase::MeetOperation(const int iterIdx,
   return meet_result;
 }
 
-labm8::Status AnalysisBase::Init() {
+labm8::Status AnalysisBase::Init_sync() {
+  // 同步更新的版本 (worklist的版本)
   auto time_start = std::chrono::high_resolution_clock::now();
   ParseProgramGraph();              // 需要把program_points 和 interested_points 给算好;
                                     // adjacencies也算好。这是一个纯虚函数。
   RETURN_IF_ERROR(InitSettings());  // 这个主要作用往stored_result_set里加初始的结果
 
   // add all nodes in worklist
+  // std::priority_queue<WorklistItem, std::vector<WorklistItem>, decltype(compare)> work_list{
+  //     compare};  // 使用优先级队列的情况
+  std::queue<WorklistItem> work_list;  // 非优先级队列的情况
   std::cout << "till yzd_analysis_base.cc line 154, everything is fine" << std::endl;
-  for (const int pp : program_points) {
+  for (const int pp : _top_order_list) {
     std::cout << "in the initialization of work_list, " << pp << " is going to be emplaced"
               << std::endl;
-    std::cout << "its order in topology is: " << _top_order[pp] << std::endl;
+    std::cout << "its order in topology is: " << _top_order_map[pp] << std::endl;
     work_list.emplace(1, pp);
   }
   // int continued_num = 0;
   int total_iter_num = 0;
   while (!work_list.empty()) {
-    // WorklistItem cur_item = work_list.front(); // 非优先级队列的情况
-    WorklistItem cur_item = work_list.top();
+    WorklistItem cur_item = work_list.front();  // 非优先级队列的情况
+    // WorklistItem cur_item = work_list.top();
     work_list.pop();
     int cur_iter_idx = cur_item.iter_idx, cur_node_idx = cur_item.node_idx;
     total_iter_num = cur_iter_idx;
-    std::cout << "=======cur_node_idx: " << cur_node_idx
-              << "; top order: " << _top_order[cur_node_idx] << std::endl;
+    std::cout << "=======poped cur_node_idx: " << cur_node_idx
+              << "; top order: " << _top_order_map[cur_node_idx] << std::endl;
 
     if (cur_iter_idx > analysis_setting.max_iteration) {
       return labm8::Status(labm8::error::FAILED_PRECONDITION,
@@ -177,8 +183,8 @@ labm8::Status AnalysisBase::Init() {
     }
 
     if (cur_iter_idx > result_pointers.size() - 1) {
-      // std::cout << "~~~~~~~~~~~~~~~~~~~~iteration " << cur_iter_idx << "~~~~~~~~~~~~~~~~~"
-      //           << std::endl;
+      std::cout << "~~~~~~~~~~~~~~~~~~~~iteration " << cur_iter_idx << "~~~~~~~~~~~~~~~~~"
+                << std::endl;
       // PrintWorkList(work_list);
       result_pointers.push_back(
           result_pointers.back());  // copy the result of the last iteration and push into result.
@@ -199,6 +205,8 @@ labm8::Status AnalysisBase::Init() {
       //           << "; size of result_pointers is: " << result_pointers.size() << std::endl;
       meeted_nodeset =
           MeetOperation(cur_iter_idx - 1, neighbor_nodes);  // 这地方-1不-1结果都一样的吗？
+      // meeted_nodeset = MeetOperation(cur_iter_idx, neighbor_nodes);  //
+      // 这地方-1不-1结果都一样的吗？
     } else {
       meeted_nodeset = stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]];
     }
@@ -280,7 +288,8 @@ labm8::Status AnalysisBase::Init() {
     for (auto affted_node : affected_list) {
       work_list.emplace(cur_iter_idx + 1, affted_node);
     }
-    // std::cout << "affected nodes are added to worklist: " << affected_list << std::endl;
+    // std::cout << "affected nodes are added to worklist: " << affected_list
+    //           << ", and their iteration number would be " << cur_iter_idx + 1 << std::endl;
   }
   if (analysis_setting.task_name == yzd::yzd_liveness) {
     std::cout << "num_iteration_liveness " << total_iter_num << std::endl;
@@ -293,8 +302,92 @@ labm8::Status AnalysisBase::Init() {
   return labm8::Status::OK;
 }
 
+labm8::Status AnalysisBase::Init_async() {
+  // 异步更新的版本 (非worklist)
+  auto time_start = std::chrono::high_resolution_clock::now();
+  ParseProgramGraph();              // 需要把program_points 和 interested_points 给算好;
+                                    // adjacencies也算好。这是一个纯虚函数。
+  RETURN_IF_ERROR(InitSettings());  // 这个主要作用往stored_result_set里加初始的结果
+
+  bool flag = true;
+  int cur_iter_idx = 0;
+  while (flag) {
+    cur_iter_idx++;
+    flag = false;
+    if (cur_iter_idx > analysis_setting.max_iteration) {
+      return labm8::Status(labm8::error::FAILED_PRECONDITION,
+                           "Failed to terminate in certain iterations!");
+    }
+
+    if (cur_iter_idx > result_pointers.size() - 1) {
+      std::cout << "~~~~~~~~~~~~~~~~~~~~iteration " << cur_iter_idx << "~~~~~~~~~~~~~~~~~"
+                << std::endl;
+      result_pointers.push_back(
+          result_pointers.back());  // copy the result of the last iteration and push into result.
+    }
+    for (const int cur_node_idx : _top_order_list) {
+      const auto& neighbor_nodes =
+          (analysis_setting.direction == forward)
+              ? adjacencies.control_reverse_adj_list[cur_node_idx]  // meet all predecessors
+              : adjacencies.control_adj_list[cur_node_idx];         // meet all successors
+      NodeSet meeted_nodeset;
+      if (!neighbor_nodes.empty()) {
+        meeted_nodeset = MeetOperation(cur_iter_idx, neighbor_nodes);
+      } else {
+        meeted_nodeset = stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]];
+      }
+      NodeSet temp = meeted_nodeset - kills[cur_node_idx];
+      NodeSet updated_bitvector =
+          gens[cur_node_idx] | temp;  // 这两句是真的有点奇怪，合并到一起就会提示有错
+      if (updated_bitvector == stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]]) {
+        continue;
+      }
+      // 就是结果有改变
+      flag = true;
+      if (analysis_setting.may_or_must == may) {
+        if ((updated_bitvector.size() == 0) |
+            !(updated_bitvector > stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]])) {
+          std::cout << "may: should always extend!!!" << std::endl;
+          abort();
+        }
+      } else {
+        // must
+        if (!((cur_node_idx == 4) | (cur_node_idx == 149)) &&
+            ((updated_bitvector.size() == 0) |
+             !(updated_bitvector < stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]]))) {
+          std::cout << "must: should always shrink!!!" << std::endl;
+          std::cout << "before update: "
+                    << stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]] << std::endl;
+          std::cout << "after  update: " << updated_bitvector << std::endl;
+
+          abort();
+        }
+      }
+      stored_nodesets.push_back(updated_bitvector);
+      result_pointers[cur_iter_idx][cur_node_idx] = stored_nodesets.size() - 1;
+    }
+  }
+  if (analysis_setting.task_name == yzd::yzd_liveness) {
+    std::cout << "num_iteration_liveness " << cur_iter_idx << std::endl;
+  } else if (analysis_setting.task_name == yzd::yzd_dominance) {
+    std::cout << "num_iteration_dominance " << cur_iter_idx << std::endl;
+  } else if (analysis_setting.task_name == yzd::yzd_reachability) {
+    std::cout << "num_iteration_reachability " << cur_iter_idx << std::endl;
+  }
+  auto time_end = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(time_end - time_start);
+  std::cout << "Time taken by function: " << duration.count() << " microseconds" << std::endl;
+  return labm8::Status::OK;
+}
+
 labm8::Status AnalysisBase::Run(programl::ResultsEveryIteration* resultsOfAllIterations) {
-  RETURN_IF_ERROR(Init());
+  if (analysis_setting.sync_or_async == async){
+    RETURN_IF_ERROR(Init_async());
+  }
+  else{
+    RETURN_IF_ERROR(Init_sync());
+  }
+  
 
   // 接下来就是把result_pointers写到resultsOfAllIterations里
   resultsOfAllIterations->set_task_name(analysis_setting.TaskNameToString());

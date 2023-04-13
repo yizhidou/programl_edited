@@ -77,7 +77,12 @@ void YZDLiveness::ParseProgramGraph() {  // 需要把program_points 和 interest
 
 labm8::Status YZDLiveness::ValidateWithPrograml() {
   RETURN_IF_ERROR(programl_liveness_analysis.Init());
-  RETURN_IF_ERROR(Init());
+  if (analysis_setting.sync_or_async == async){
+    RETURN_IF_ERROR(Init_async());
+  }
+  else{
+    RETURN_IF_ERROR(Init_sync());
+  }
   // 接下来应该就是对比最后一个iteration和programl的livein是不是一致了
   const std::vector<absl::flat_hash_set<int>> programl_result =
       programl_liveness_analysis.live_in_sets();
