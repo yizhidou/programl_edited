@@ -39,7 +39,9 @@ enum TaskName { yzd_liveness, yzd_dominance, yzd_reachability };
 enum Direction { forward, backward };
 enum MayOrMust { may, must };
 enum InitializeMode { allzeros, allones };
-enum SyncOrAsync {sync, async};
+enum SyncOrAsync { sync, async };
+
+extern std::unordered_map<TaskName, std::string> TaskNameToStrTable;
 
 struct AnalysisSetting {
   TaskName task_name;
@@ -85,12 +87,10 @@ struct AnalysisSetting {
 NodeSet SubgraphNodesFromRoot(const int& rootNode, const Adjacencies& adjacencies,
                               const Direction& direction);
 
-
 absl::flat_hash_map<int, int> NodeListToOrderMap(const std::vector<int>& node_list,
                                                  bool if_reverse);
 
-std::vector<int> GetRootList(
-    const absl::flat_hash_map<int, absl::flat_hash_set<int>>& reverse_adj);
+std::vector<int> GetRootList(const absl::flat_hash_map<int, absl::flat_hash_set<int>>& reverse_adj);
 
 std::pair<std::vector<int>, int> PostOrderAndNumBackEdgeFromOneRoot(
     const absl::flat_hash_map<int, absl::flat_hash_set<int>>& adj, const int rootnode);

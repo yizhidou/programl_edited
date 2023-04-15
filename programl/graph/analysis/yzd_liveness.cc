@@ -112,6 +112,12 @@ labm8::Status YZDLiveness::ValidateWithPrograml() {
     //   }
   }
   std::cout << "sim_count = " << sim_count << std::endl;
+  if (sim_count == GetNumProgramPoints()){
+    std::cout << "validation passed~" << std::endl;
+  }
+  else{
+    std::cout << "validation **did not** passed!!!" << std::endl;
+  }
   return labm8::Status::OK;
 }
 

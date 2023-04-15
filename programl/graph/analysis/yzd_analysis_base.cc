@@ -15,7 +15,9 @@
 namespace yzd {
 
 labm8::Status AnalysisBase::InitSettings() {
-  // 这里应该check一下num_point_interested和num_point_interested这两个数值得是大于0的
+  // 1. 获得图中root的个数/每个root对应的子图节点集/backedge的数量； 2. 获得第0个iteration的结果；
+
+  // 检查num_point_interested和num_point_interested这两个数值得是大于0的
   if ((interested_points.size() == 0) || (program_points.size() == 0)) {
     return labm8::Status(labm8::error::FAILED_PRECONDITION,
                          "The graph has either none program points or none interested points");
@@ -27,34 +29,31 @@ labm8::Status AnalysisBase::InitSettings() {
                                 ? adjacencies.control_reverse_adj_list
                                 : adjacencies.control_adj_list;
   std::vector<int> root_list = GetRootList(reverse_adj);
-  // std::cout << "the number of pp is: " << GetNumProgramPoints() << std::endl;
-  // std::cout << "the number of roots is: " << root_list.size() << std::endl;
-  // int num_nodes_in_po_list = 0;
-  _top_order_map.reserve(GetNumProgramPoints());
+  // _top_order_map.reserve(GetNumProgramPoints());
   _top_order_list.reserve(GetNumProgramPoints());
-  std::cout << "The top order: " << std::endl;
+  // std::cout << "The top order: " << std::endl;
   for (const int root_node : root_list) {
     std::pair<std::vector<int>, int> po_and_num_be =
         PostOrderAndNumBackEdgeFromOneRoot(adj, root_node);
     _num_be += po_and_num_be.second;
     const auto& po_list = po_and_num_be.first;
-    // num_nodes_in_po_list += po_list.size();
     for (int i = po_list.size() - 1; i > -1; i--) {
-      _top_order_map[po_list[i]] = _top_order_map.size();
+      // _top_order_map[po_list[i]] = _top_order_map.size();
       _top_order_list.push_back(po_list[i]);
-      std::cout << "node: " << po_list[i] << "; top order: " << _top_order_map.size() - 1
-                << std::endl;
+      // std::cout << "node: " << po_list[i] << "; top order: " << _top_order_list.size() - 1
+      //           << std::endl;
     }
     _root_subgraph[root_node] = NodeSet(po_list.begin(), po_list.end());
   }
-  if (_top_order_map.size() !=
-      GetNumProgramPoints()) {  // 就是一个图有多个root的情况，目前还没办法处理
-    std::cout << "_top_order_map.size = " << _top_order_map.size()
-              << "; num_pp = " << GetNumProgramPoints() << std::endl;
-    return labm8::Status(labm8::error::FAILED_PRECONDITION,
-                         "The graph has multiple root! We currently cannot handle this...");
-  }
-  std::cout << "the number of back edges is: " << _num_be << std::endl;
+  // NodeSet _top_order_set(_top_order_list.begin(), _top_order_list.end());
+  // if (_top_order_set.size() !=
+  //     GetNumProgramPoints()) {  // 就是一个图有多个root的情况，目前还没办法处理
+  //   std::cout << "_top_order_map.size = " << _top_order_set.size()
+  //             << "; num_pp = " << GetNumProgramPoints() << std::endl;
+  //   return labm8::Status(labm8::error::FAILED_PRECONDITION,
+  //                        "The graph has multiple root! We currently cannot handle this...");
+  // }
+  std::cout << TaskNameToStrTable[analysis_setting.task_name] << " num_be: " << _num_be << std::endl;
 
   // add result of iteration 0 into result_pointers.
   absl::flat_hash_map<int, int> result_pointer_zero_iteration;
@@ -109,10 +108,10 @@ labm8::Status AnalysisBase::InitSettings() {
     //     }
     //   }
     // }
-    for (const int& pp : program_points) {
-      std::cout << "(yzd) the initial value of " << pp << " : "
-                << stored_nodesets[result_pointer_zero_iteration[pp]] << std::endl;
-    }
+    // for (const int& pp : program_points) {
+    //   std::cout << "(yzd) the initial value of " << pp << " : "
+    //             << stored_nodesets[result_pointer_zero_iteration[pp]] << std::endl;
+    // }
 
   } else {
     return labm8::Status(labm8::error::UNIMPLEMENTED,
@@ -155,27 +154,22 @@ labm8::Status AnalysisBase::Init_sync() {
                                     // adjacencies也算好。这是一个纯虚函数。
   RETURN_IF_ERROR(InitSettings());  // 这个主要作用往stored_result_set里加初始的结果
 
-  // add all nodes in worklist
-  // std::priority_queue<WorklistItem, std::vector<WorklistItem>, decltype(compare)> work_list{
-  //     compare};  // 使用优先级队列的情况
-  std::queue<WorklistItem> work_list;  // 非优先级队列的情况
-  std::cout << "till yzd_analysis_base.cc line 154, everything is fine" << std::endl;
+  std::queue<WorklistItem> work_list;
   for (const int pp : _top_order_list) {
-    std::cout << "in the initialization of work_list, " << pp << " is going to be emplaced"
-              << std::endl;
-    std::cout << "its order in topology is: " << _top_order_map[pp] << std::endl;
+    // std::cout << "in the initialization of work_list, " << pp << " is going to be emplaced"
+    //           << std::endl;
+    // std::cout << "its order in topology is: " << _top_order_map[pp] << std::endl;
     work_list.emplace(1, pp);
   }
   // int continued_num = 0;
   int total_iter_num = 0;
   while (!work_list.empty()) {
-    WorklistItem cur_item = work_list.front();  // 非优先级队列的情况
-    // WorklistItem cur_item = work_list.top();
+    WorklistItem cur_item = work_list.front();
     work_list.pop();
     int cur_iter_idx = cur_item.iter_idx, cur_node_idx = cur_item.node_idx;
     total_iter_num = cur_iter_idx;
-    std::cout << "=======poped cur_node_idx: " << cur_node_idx
-              << "; top order: " << _top_order_map[cur_node_idx] << std::endl;
+    // std::cout << "=======poped cur_node_idx: " << cur_node_idx
+    //           << "; top order: " << _top_order_map[cur_node_idx] << std::endl;
 
     if (cur_iter_idx > analysis_setting.max_iteration) {
       return labm8::Status(labm8::error::FAILED_PRECONDITION,
@@ -183,8 +177,8 @@ labm8::Status AnalysisBase::Init_sync() {
     }
 
     if (cur_iter_idx > result_pointers.size() - 1) {
-      std::cout << "~~~~~~~~~~~~~~~~~~~~iteration " << cur_iter_idx << "~~~~~~~~~~~~~~~~~"
-                << std::endl;
+      // std::cout << "~~~~~~~~~~~~~~~~~~~~iteration " << cur_iter_idx << "~~~~~~~~~~~~~~~~~"
+      //           << std::endl;
       // PrintWorkList(work_list);
       result_pointers.push_back(
           result_pointers.back());  // copy the result of the last iteration and push into result.
@@ -291,14 +285,12 @@ labm8::Status AnalysisBase::Init_sync() {
     // std::cout << "affected nodes are added to worklist: " << affected_list
     //           << ", and their iteration number would be " << cur_iter_idx + 1 << std::endl;
   }
-  if (analysis_setting.task_name == yzd::yzd_liveness) {
-    std::cout << "num_iteration_liveness " << total_iter_num << std::endl;
-  } else if (analysis_setting.task_name == yzd::yzd_dominance) {
-    std::cout << "num_iteration_dominance " << total_iter_num << std::endl;
-  }
+  std::cout << TaskNameToStrTable[analysis_setting.task_name]
+            << " num_iteration: " << total_iter_num << std::endl;
   auto time_end = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(time_end - time_start);
-  std::cout << "Time taken by function: " << duration.count() << " microseconds" << std::endl;
+  std::cout << TaskNameToStrTable[analysis_setting.task_name]
+            << " time_duration(worklist): " << duration.count() << std::endl;
   return labm8::Status::OK;
 }
 
@@ -320,8 +312,8 @@ labm8::Status AnalysisBase::Init_async() {
     }
 
     if (cur_iter_idx > result_pointers.size() - 1) {
-      std::cout << "~~~~~~~~~~~~~~~~~~~~iteration " << cur_iter_idx << "~~~~~~~~~~~~~~~~~"
-                << std::endl;
+      // std::cout << "~~~~~~~~~~~~~~~~~~~~iteration " << cur_iter_idx << "~~~~~~~~~~~~~~~~~"
+      //           << std::endl;
       result_pointers.push_back(
           result_pointers.back());  // copy the result of the last iteration and push into result.
     }
@@ -367,27 +359,21 @@ labm8::Status AnalysisBase::Init_async() {
       result_pointers[cur_iter_idx][cur_node_idx] = stored_nodesets.size() - 1;
     }
   }
-  if (analysis_setting.task_name == yzd::yzd_liveness) {
-    std::cout << "num_iteration_liveness " << cur_iter_idx << std::endl;
-  } else if (analysis_setting.task_name == yzd::yzd_dominance) {
-    std::cout << "num_iteration_dominance " << cur_iter_idx << std::endl;
-  } else if (analysis_setting.task_name == yzd::yzd_reachability) {
-    std::cout << "num_iteration_reachability " << cur_iter_idx << std::endl;
-  }
+  std::cout << TaskNameToStrTable[analysis_setting.task_name] << " num_iteration: " << cur_iter_idx
+            << std::endl;
   auto time_end = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(time_end - time_start);
-  std::cout << "Time taken by function: " << duration.count() << " microseconds" << std::endl;
+  std::cout << TaskNameToStrTable[analysis_setting.task_name]
+            << " time_duration(non-worklist): " << duration.count() << std::endl;
   return labm8::Status::OK;
 }
 
 labm8::Status AnalysisBase::Run(programl::ResultsEveryIteration* resultsOfAllIterations) {
-  if (analysis_setting.sync_or_async == async){
+  if (analysis_setting.sync_or_async == async) {
     RETURN_IF_ERROR(Init_async());
-  }
-  else{
+  } else {
     RETURN_IF_ERROR(Init_sync());
   }
-  
 
   // 接下来就是把result_pointers写到resultsOfAllIterations里
   resultsOfAllIterations->set_task_name(analysis_setting.TaskNameToString());

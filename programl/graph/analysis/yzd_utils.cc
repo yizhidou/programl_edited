@@ -10,6 +10,11 @@
 
 namespace yzd {
 
+std::unordered_map<TaskName, std::string> TaskNameToStrTable = {
+    {yzd::yzd_liveness, "yzd_liveness"},
+    {yzd::yzd_dominance, "yzd_dominance"},
+    {yzd::yzd_reachability, "yzd_reachability"}};
+
 NodeSet operator|(const NodeSet& lhs, const NodeSet& rhs) {
   NodeSet result(lhs);
   for (const auto& i : rhs) {
@@ -173,14 +178,14 @@ absl::flat_hash_map<int, int> NodeListToOrderMap(const std::vector<int>& node_li
 std::vector<int> GetRootList(
     const absl::flat_hash_map<int, absl::flat_hash_set<int>>& reverse_adj) {
   std::vector<int> root_list;
-  std::cout << "At the begining of GetRootList, the size of reverse_adj is: " << reverse_adj.size()
-            << std::endl;
+  // std::cout << "At the begining of GetRootList, the size of reverse_adj is: " << reverse_adj.size()
+  //           << std::endl;
   for (auto iter = reverse_adj.begin(); iter != reverse_adj.end(); ++iter) {
     if (iter->second.size() == 0) {
       root_list.emplace_back(iter->first);
     }
   }
-  std::cout << "in GetRootList, roots are: " << root_list << std::endl;
+  // std::cout << "in GetRootList, roots are: " << root_list << std::endl;
   return root_list;
 }
 
@@ -207,8 +212,8 @@ std::pair<std::vector<int>, int> PostOrderAndNumBackEdgeFromOneRoot(
           dfs(child_node);
         } else if (color_map[child_node] == 0) {  // grey
           num_back_edge++;
-          std::cout << "Back edge spotted! (" << start_node << ", " << child_node << ")"
-                    << std::endl;
+          // std::cout << "Back edge spotted! (" << start_node << ", " << child_node << ")"
+                    // << std::endl;
         }
       }
       color_map[start_node] = 1;  // black
