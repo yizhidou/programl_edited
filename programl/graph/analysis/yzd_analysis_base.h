@@ -26,7 +26,7 @@ class AnalysisBase {
 
   int _num_be = 0;  // number of back edges
 
-  // std::function<bool(const WorklistItem&, const WorklistItem&)> compare =
+                    // std::function<bool(const WorklistItem&, const WorklistItem&)> compare =
   //     [&](const WorklistItem& lhs, const WorklistItem& rhs) -> bool {
   //   std::cout << "we have entered compare!" << std::endl;
   //   if (lhs.iter_idx < rhs.iter_idx) {
@@ -39,8 +39,9 @@ class AnalysisBase {
   //   std::cout << lhs.node_idx << " is more than " << rhs.node_idx << std::endl;
   //   return true;
   // };
-  // std::priority_queue<WorklistItem, std::vector<WorklistItem>, decltype(compare)> work_list{compare};
-  
+  // std::priority_queue<WorklistItem, std::vector<WorklistItem>, decltype(compare)>
+  // work_list{compare};
+
   // std::queue<WorklistItem> work_list;
 
  protected:
@@ -66,7 +67,8 @@ class AnalysisBase {
   labm8::Status Init_async();
   labm8::Status Init_sync();
 
-  labm8::Status Run(programl::ResultsEveryIteration* resultsOfAllIterations);
+  labm8::Status Run(programl::ResultsEveryIteration* resultsOfAllIterations,
+                    absl::flat_hash_map<int, NodeSet>* adj_to_save = nullptr);
 
   int GetNumIteration() const { return result_pointers.size(); }
 

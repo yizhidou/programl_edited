@@ -13,20 +13,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include <getopt.h>
+
+#include <cstdlib>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <cstdlib>
 
 #include "labm8/cpp/app.h"
 #include "labm8/cpp/logging.h"
 #include "labm8/cpp/status.h"
 #include "programl/graph/analysis/analysis.h"
+#include "programl/graph/analysis/yzd_liveness.h"
+#include "programl/graph/analysis/yzd_utils.h"
 #include "programl/proto/program_graph.pb.h"
 #include "programl/util/stdin_fmt.h"
 #include "programl/util/stdout_fmt.h"
 #include "programl/version.h"
-#include "programl/graph/analysis/yzd_liveness.h"
-#include "programl/graph/analysis/yzd_utils.h"
 
 using labm8::Status;
 namespace error = labm8::error;
@@ -41,21 +44,42 @@ const char* usage_yzd = R"(Run a yzd data-flow analysis on a program graph.
 
 Usage:
 
-    analyze <analysis> <max_iteration> < /path/to/program_graph.pb)";
+    analyze <analysis> --stdin_fmt=pb <max_iteration> < /path/to/program_graph.pb)";
+
+// DEFINE_string(task_name, "", "task name");
+DEFINE_int32(max_iteration, 500, "max iteration that allowed");
+DEFINE_string(program_graph_sourcepath, "unset", "program graph source path");
+DEFINE_string(edge_list_savepath, "unset", "edge list save path");
+DEFINE_string(result_savepath, "unset", "analysis result save path");
 
 int main(int argc, char** argv) {
   gflags::SetVersionString(PROGRAML_VERSION);
   labm8::InitApp(&argc, &argv, usage);
 
-  if (argc < 2){
-    std::cerr << "at least one argument needed!";
+  if (argc < 2) {
+    std::cerr << "at least one argument (task name) needed!";
     return 4;
   }
-
-  programl::ProgramGraph graph;
-  programl::util::ParseStdinOrDie(&graph);
   std::string task_name(argv[1]);
-
+  if (FLAGS_program_graph_sourcepath == "unset") {
+    std::cerr << "should set a program graph source file with flag --program_graph_sourcepath";
+    return 4;
+  }
+  programl::ProgramGraph graph;
+  // edit begin
+  // programl::util::ParseStdinOrDie(&graph);
+  std::ifstream pg_output_stream(FLAGS_program_graph_sourcepath);
+  if (pg_output_stream.is_open()) {
+    if (!graph.ParseFromIstream(&pg_output_stream)) {
+      LOG(ERROR) << "Failed to parse binary protocol buffer from "
+                 << FLAGS_program_graph_sourcepath;
+      return 4;
+    }
+  } else {
+    LOG(ERROR) << "Failed to open program graph source path!";
+    return 4;
+  }
+  // edit end
   Status status;
   if ((task_name == "reachability") || (task_name == "dominance") || (task_name == "liveness") ||
       (task_name == "datadep" || (task_name == "subexpressions"))) {
@@ -72,20 +96,31 @@ int main(int argc, char** argv) {
     }
     programl::util::WriteStdout(featuresList);
   } else {
-    if (argc != 3) {
-    std::cerr << usage_yzd;
-    return 4;
-  }
+    if (argc != 2) {
+      std::cerr << usage_yzd;
+      return 4;
+    }
     programl::ResultsEveryIteration resultsEveryIterationMessage;
-    int maxIteration = std::atoi(argv[2]);
-    status = programl::graph::analysis::RunAnalysis(task_name, maxIteration, graph, &resultsEveryIterationMessage);
+    // int maxIteration = std::atoi(argv[2]);
+    status = programl::graph::analysis::RunAnalysis(task_name, FLAGS_max_iteration, graph,
+                                                    &resultsEveryIterationMessage);
     // yzd::AnalysisSetting yzd_setting(yzd::TaskName::yzd_liveness, maxIteration);
     // status = yzd::YZDLiveness(graph, yzd_setting).ValidateWithPrograml();
     if (!status.ok()) {
       LOG(ERROR) << status.error_message();
       return 4;
     }
-    programl::util::WriteStdout(resultsEveryIterationMessage);
+
+    if (FLAGS_result_savepath == "unset") {
+      programl::util::WriteStdout(resultsEveryIterationMessage);
+    } else {
+      // std::ofstream result_record_stream;
+      // result_record_stream.open(FLAGS_result_savepath);
+      std::fstream result_record_stream(FLAGS_result_savepath, std::ios::out | std::ios::binary);
+      resultsEveryIterationMessage.SerializeToOstream(&result_record_stream);
+      result_record_stream.close();
+    }
+    // programl::util::WriteStdout(resultsEveryIterationMessage);
   }
 
   return 0;

@@ -14,6 +14,7 @@ class YZDDominance : public AnalysisBase {
 
  protected:
   virtual void ParseProgramGraph() override;
+  void ParseProgramGraph_new();
 
  private:
   programl::graph::analysis::DominanceAnalysis programl_dominance_analysis;

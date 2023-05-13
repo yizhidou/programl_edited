@@ -1,5 +1,6 @@
 #include "yzd_dominance.h"
 
+#include <algorithm>
 #include <cassert>
 
 #include "labm8/cpp/status_macros.h"
@@ -12,10 +13,10 @@ void YZDDominance::ParseProgramGraph() {  // 需要把program_points 和 interes
     if (cur_edge.flow() == programl::Edge::CONTROL) {
       adjacencies.control_adj_list[cur_edge.source()].insert(cur_edge.target());
       adjacencies.control_reverse_adj_list[cur_edge.target()].insert(cur_edge.source());
-      if (!adjacencies.control_adj_list.contains(cur_edge.target())){
+      if (!adjacencies.control_adj_list.contains(cur_edge.target())) {
         adjacencies.control_adj_list[cur_edge.target()] = {};
       }
-      if (!adjacencies.control_reverse_adj_list.contains(cur_edge.source())){
+      if (!adjacencies.control_reverse_adj_list.contains(cur_edge.source())) {
         adjacencies.control_reverse_adj_list[cur_edge.source()] = {};
       }
       program_points.insert(cur_edge.source());
@@ -30,6 +31,58 @@ void YZDDominance::ParseProgramGraph() {  // 需要把program_points 和 interes
   }
 }
 
+void YZDDominance::ParseProgramGraph_new() {
+  // 需要把program_points 和 interested_points 给算好;
+  // gens/kills 算好； adjacencies也算好
+  absl::flat_hash_map<int, int> old_node_to_new_node_map;
+  absl::flat_hash_map<int, NodeSet> tmp_control_adj_list;
+  absl::flat_hash_map<int, NodeSet> tmp_control_reverse_adj_list;
+  for (int edge_idx = 0; edge_idx < program_graph.edge_size(); edge_idx++) {
+    const programl::Edge& cur_edge = program_graph.edge(edge_idx);
+    if (cur_edge.flow() == programl::Edge::CONTROL) {
+      if (!tmp_control_adj_list.contains(cur_edge.target())) {
+        tmp_control_adj_list[cur_edge.target()] = {};
+      }
+      if (!tmp_control_reverse_adj_list.contains(cur_edge.source())) {
+        tmp_control_reverse_adj_list[cur_edge.source()] = {};
+      }
+      tmp_control_adj_list[cur_edge.source()].insert(cur_edge.target());
+      tmp_control_reverse_adj_list[cur_edge.target()].insert(cur_edge.source());
+    }
+  }
+  int num_node = tmp_control_adj_list.size();
+  std::vector<int> old_nodes_list;
+  old_nodes_list.reserve(num_node);
+  for (const auto& item : tmp_control_adj_list) {
+    old_nodes_list.push_back(item.first);
+  }
+  std::sort(old_nodes_list.begin(), old_nodes_list.end());
+
+  for (int new_node_idx = 0; new_node_idx < num_node; new_node_idx++) {
+    old_node_to_new_node_map[old_nodes_list[new_node_idx]] = new_node_idx;
+    // old_nodes_list[new_node_idx] is the old node idx in the new position.
+    program_points.insert(new_node_idx);
+    interested_points.insert(new_node_idx);
+    gens[new_node_idx].insert(new_node_idx);
+    kills[new_node_idx];
+  }
+  for (const int& old_node : old_nodes_list) {
+    const NodeSet& old_adj_list = tmp_control_adj_list[old_node];
+    const NodeSet& old_adj_reverse_list = tmp_control_reverse_adj_list[old_node];
+    int new_node = old_node_to_new_node_map[old_node];
+    adjacencies.control_adj_list[new_node] = {};
+    adjacencies.control_reverse_adj_list[new_node] = {};
+    for (const int& old_adj_node : old_adj_list) {
+      int new_adj_node = old_node_to_new_node_map[old_adj_node];
+      adjacencies.control_adj_list[new_node].insert(new_adj_node);
+    }
+    for (const int& old_adj_reverse_node : old_adj_reverse_list) {
+      int new_adj_reverse_node = old_node_to_new_node_map[old_adj_reverse_node];
+      adjacencies.control_reverse_adj_list[new_node].insert(old_adj_reverse_node);
+    }
+  }
+}
+
 labm8::Status YZDDominance::ValidateWithPrograml() {
   RETURN_IF_ERROR(programl_dominance_analysis.Init());
   // const auto programl_eligiable_roots = programl_dominance_analysis.GetEligibleRootNodes();
@@ -38,10 +91,9 @@ labm8::Status YZDDominance::ValidateWithPrograml() {
   //   std::cout << item << ", ";
   // }
   // std::cout << std::endl;
-  if (analysis_setting.sync_or_async == async){
+  if (analysis_setting.sync_or_async == async) {
     RETURN_IF_ERROR(Init_async());
-  }
-  else{
+  } else {
     RETURN_IF_ERROR(Init_sync());
   }
   const absl::flat_hash_map<int, NodeSet> yzd_last_result = GetLastIterationResult();

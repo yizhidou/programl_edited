@@ -21,6 +21,8 @@ struct Adjacencies {
   absl::flat_hash_map<int, absl::flat_hash_set<int>> control_reverse_adj_list;
 };
 
+void AdjCSVStdout(const absl::flat_hash_map<int, NodeSet>& adj);
+
 NodeSet operator|(const NodeSet& lhs, const NodeSet& rhs);
 NodeSet& operator|=(NodeSet& lhs, const NodeSet& rhs);
 NodeSet operator&(const NodeSet& lhs, const NodeSet& rhs);
@@ -94,4 +96,5 @@ std::vector<int> GetRootList(const absl::flat_hash_map<int, absl::flat_hash_set<
 
 std::pair<std::vector<int>, int> PostOrderAndNumBackEdgeFromOneRoot(
     const absl::flat_hash_map<int, absl::flat_hash_set<int>>& adj, const int rootnode);
+
 }  // namespace yzd

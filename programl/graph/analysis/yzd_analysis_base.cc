@@ -53,7 +53,8 @@ labm8::Status AnalysisBase::InitSettings() {
   //   return labm8::Status(labm8::error::FAILED_PRECONDITION,
   //                        "The graph has multiple root! We currently cannot handle this...");
   // }
-  std::cout << TaskNameToStrTable[analysis_setting.task_name] << " num_be: " << _num_be << std::endl;
+  std::cout << TaskNameToStrTable[analysis_setting.task_name] << " num_be: " << _num_be
+            << std::endl;
 
   // add result of iteration 0 into result_pointers.
   absl::flat_hash_map<int, int> result_pointer_zero_iteration;
@@ -368,7 +369,8 @@ labm8::Status AnalysisBase::Init_async() {
   return labm8::Status::OK;
 }
 
-labm8::Status AnalysisBase::Run(programl::ResultsEveryIteration* resultsOfAllIterations) {
+labm8::Status AnalysisBase::Run(programl::ResultsEveryIteration* resultsOfAllIterations,
+                                absl::flat_hash_map<int, NodeSet>* adj_to_save) {
   if (analysis_setting.sync_or_async == async) {
     RETURN_IF_ERROR(Init_async());
   } else {
@@ -402,6 +404,20 @@ labm8::Status AnalysisBase::Run(programl::ResultsEveryIteration* resultsOfAllIte
     }
 
     *resultsOfAllIterations->add_results_every_iteration() = result_one_iteration_message;
+  }
+  if (adj_to_save == nullptr){
+    return labm8::Status::OK;
+  }
+  // 接下来就是把相应的邻接矩阵信息存下来
+  if (analysis_setting.task_name == yzd_dominance){
+    for (const auto & item : adjacencies.control_adj_list){
+      (*adj_to_save)[item.first] = NodeSet(item.second.begin(), item.second.end());
+    }
+  }
+  else{
+    return labm8::Status(labm8::error::FAILED_PRECONDITION,
+                           "Failed to recognize task_name! currently available: yzd_dominance");
+
   }
   return labm8::Status::OK;
 }

@@ -10,6 +10,15 @@
 
 namespace yzd {
 
+void AdjCSVStdout(const absl::flat_hash_map<int, NodeSet>& adj){
+  for (const auto& adj_item : adj){
+    int source_node = adj_item.first;
+    for (int target_node: adj_item.second){
+      // 这里应该输出一条边
+    }
+  }
+}
+
 std::unordered_map<TaskName, std::string> TaskNameToStrTable = {
     {yzd::yzd_liveness, "yzd_liveness"},
     {yzd::yzd_dominance, "yzd_dominance"},

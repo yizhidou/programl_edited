@@ -23,28 +23,6 @@ void YZDLiveness::ParseProgramGraph() {  // 需要把program_points 和 interest
       program_points.insert(edge.target());
     } else if (edge.flow() == programl::Edge::DATA) {
       data_edge_count++;
-
-      // if (program_graph.node(edge.source()).type() == programl::Node::INSTRUCTION) {  // def edge
-      //   assert((program_graph.node(edge.target()).type() == programl::Node::VARIABLE) &&
-      //          "The target of this DataEdge should be Variable node!");
-      //   program_points.insert(edge.source());
-      //   interested_points.insert(edge.target());
-      //   kills[edge.source()].insert(edge.target());
-      // } else if (program_graph.node(edge.source()).type() ==
-      //            programl::Node::VARIABLE) {  // use edge
-      //   assert((program_graph.node(edge.target()).type() == programl::Node::INSTRUCTION) &&
-      //          "The target of this DataEdge should be Instruction node!");
-      //   interested_points.insert(edge.source());
-      //   program_points.insert(edge.target());
-      //   gens[edge.target()].insert(edge.source());
-      // }
-      // else {
-      //   assert((program_graph.node(edge.source()).type() == programl::Node::CONSTANT) &&
-      //          (program_graph.node(edge.target()).type() == programl::Node::INSTRUCTION) &&
-      //          "I suppose there should not be the fourth way of generating DataEdge...");
-      // }
-
-      // modified for test
       if (program_graph.node(edge.source()).type() == programl::Node::INSTRUCTION) {  // def edge
         program_points.insert(edge.source());
         interested_points.insert(edge.target());
