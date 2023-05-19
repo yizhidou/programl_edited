@@ -15,6 +15,7 @@ class YZDLiveness : public AnalysisBase {
 
  protected:
   virtual void ParseProgramGraph() override;
+  virtual labm8::Status ParseProgramGraph_idx_reorganized() override;
 
  private:
   programl::graph::analysis::LivenessAnalysis programl_liveness_analysis;

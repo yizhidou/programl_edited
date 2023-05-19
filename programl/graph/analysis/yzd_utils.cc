@@ -10,15 +10,6 @@
 
 namespace yzd {
 
-void AdjCSVStdout(const absl::flat_hash_map<int, NodeSet>& adj){
-  for (const auto& adj_item : adj){
-    int source_node = adj_item.first;
-    for (int target_node: adj_item.second){
-      // 这里应该输出一条边
-    }
-  }
-}
-
 std::unordered_map<TaskName, std::string> TaskNameToStrTable = {
     {yzd::yzd_liveness, "yzd_liveness"},
     {yzd::yzd_dominance, "yzd_dominance"},
@@ -79,6 +70,21 @@ std::ostream& operator<<(std::ostream& os, const NodeSet& nodeSet) {
   }
   os << "]";
   return os;
+}
+
+labm8::Status GetRemapedNodeset(NodeSet& remapped_nodeset, const NodeSet& origin_nodeset,
+                                const absl::flat_hash_map<int, int>& map) {
+  // NodeSet remapped_nodeset;
+  remapped_nodeset.reserve(origin_nodeset.size());
+  for (const auto& old_node : origin_nodeset) {
+    const auto& iter = map.find(old_node);
+    if (iter == map.end()){
+      return labm8::Status(labm8::error::NOT_FOUND,
+                         "the remapped key should be in the map!");
+    }
+    remapped_nodeset.insert(iter->second);
+  }
+  return labm8::Status::OK;
 }
 
 void PrintWorkList(const std::queue<WorklistItem>& workList) {
@@ -187,7 +193,8 @@ absl::flat_hash_map<int, int> NodeListToOrderMap(const std::vector<int>& node_li
 std::vector<int> GetRootList(
     const absl::flat_hash_map<int, absl::flat_hash_set<int>>& reverse_adj) {
   std::vector<int> root_list;
-  // std::cout << "At the begining of GetRootList, the size of reverse_adj is: " << reverse_adj.size()
+  // std::cout << "At the begining of GetRootList, the size of reverse_adj is: " <<
+  // reverse_adj.size()
   //           << std::endl;
   for (auto iter = reverse_adj.begin(); iter != reverse_adj.end(); ++iter) {
     if (iter->second.size() == 0) {
@@ -222,7 +229,7 @@ std::pair<std::vector<int>, int> PostOrderAndNumBackEdgeFromOneRoot(
         } else if (color_map[child_node] == 0) {  // grey
           num_back_edge++;
           // std::cout << "Back edge spotted! (" << start_node << ", " << child_node << ")"
-                    // << std::endl;
+          // << std::endl;
         }
       }
       color_map[start_node] = 1;  // black

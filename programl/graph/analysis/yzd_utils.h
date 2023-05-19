@@ -10,6 +10,18 @@
 namespace yzd {
 using NodeSet = absl::flat_hash_set<int>;
 
+enum EdgeType { control_edge, gen_edge, kill_edge, unset_edge };
+struct EdgeItem {
+  int source_node;
+  int target_node;
+  enum EdgeType edge_type;
+  EdgeItem(int sourceNode, int targetNode)
+      : source_node(sourceNode), target_node(targetNode), edge_type(unset_edge) {}
+  EdgeItem(int sourceNode, int targetNode, enum EdgeType edgeType)
+      : source_node(sourceNode), target_node(targetNode), edge_type(edgeType) {}
+};
+using EdgeList = std::vector<EdgeItem>;
+
 struct WorklistItem {
   int iter_idx;
   int node_idx;
@@ -20,8 +32,6 @@ struct Adjacencies {
   absl::flat_hash_map<int, absl::flat_hash_set<int>> control_adj_list;
   absl::flat_hash_map<int, absl::flat_hash_set<int>> control_reverse_adj_list;
 };
-
-void AdjCSVStdout(const absl::flat_hash_map<int, NodeSet>& adj);
 
 NodeSet operator|(const NodeSet& lhs, const NodeSet& rhs);
 NodeSet& operator|=(NodeSet& lhs, const NodeSet& rhs);
@@ -35,6 +45,10 @@ bool operator<(const NodeSet& lhs, const NodeSet& rhs);
 std::ostream& operator<<(std::ostream& os, const NodeSet& nodeSet);
 std::ostream& operator<<(std::ostream& os, const std::vector<int>& intVec);
 // std::ostream& operator<<(std::ostream& os, const std::queue<WorklistItem>& workList);
+
+labm8::Status GetRemapedNodeset(NodeSet& remapped_nodeset, const NodeSet& origin_nodeset,
+                                const absl::flat_hash_map<int, int>& map);
+
 void PrintWorkList(const std::queue<WorklistItem>& workList);
 
 enum TaskName { yzd_liveness, yzd_dominance, yzd_reachability };
@@ -47,13 +61,19 @@ extern std::unordered_map<TaskName, std::string> TaskNameToStrTable;
 
 struct AnalysisSetting {
   TaskName task_name;
+  int max_iteration;
   Direction direction;
   MayOrMust may_or_must;
   InitializeMode initialize_mode;
   SyncOrAsync sync_or_async;
-  int max_iteration;
-  AnalysisSetting(const TaskName taskName, int maxIteration, const SyncOrAsync syncOrAsync)
-      : task_name(taskName), max_iteration(maxIteration), sync_or_async(syncOrAsync) {
+  bool index_reorganized;
+
+  AnalysisSetting(const TaskName taskName, int maxIteration, const SyncOrAsync syncOrAsync,
+                  bool if_idx_reorganized)
+      : task_name(taskName),
+        max_iteration(maxIteration),
+        sync_or_async(syncOrAsync),
+        index_reorganized(if_idx_reorganized) {
     switch (task_name) {
       case yzd_liveness:
         direction = backward;

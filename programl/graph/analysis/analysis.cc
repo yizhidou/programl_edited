@@ -22,6 +22,8 @@
 #include "programl/graph/analysis/reachability.h"
 #include "programl/graph/analysis/subexpressions.h"
 #include "programl/graph/analysis/yzd_liveness.h"
+#include "programl/graph/analysis/yzd_reachability.h"
+#include "programl/graph/analysis/yzd_dominance.h"
 // #include "programl/graph/analysis/yzd_utils.h"
 
 using labm8::Status;
@@ -55,17 +57,30 @@ Status RunAnalysis(const string& analysisName, const ProgramGraph& graph,
 }
 
 template <typename T>
-Status YZDRun(yzd::AnalysisSetting setting ,const ProgramGraph& graph, ResultsEveryIteration* resultsOfAllIterations) {
+Status YZDRun(yzd::AnalysisSetting setting, const ProgramGraph& graph,
+              ResultsEveryIteration* resultsOfAllIterations, yzd::EdgeList* edgeListToSavePtr) {
   T analysis(graph, setting);
-  return analysis.Run(resultsOfAllIterations);
+  return analysis.Run(resultsOfAllIterations, edgeListToSavePtr);
 }
 
-Status RunAnalysis(const string& analysisName, int maxIteration, const ProgramGraph& graph,
-                   ResultsEveryIteration* resultsOfAllIterations) {
+Status RunAnalysis(const string& analysisName, int maxIteration, bool if_sync,
+                   bool if_idx_reorganized, const ProgramGraph& graph,
+                   ResultsEveryIteration* resultsOfAllIterations,
+                   yzd::EdgeList* edgeListToSavePtr) {
   // yzd::AnalysisSetting yzd_setting;
+  yzd::SyncOrAsync sync_or_async = if_sync ? yzd::sync : yzd::async;
   if (analysisName == "yzd_liveness") {
-    yzd::AnalysisSetting yzd_setting(yzd::TaskName::yzd_liveness, maxIteration, yzd::SyncOrAsync::async);
-    return YZDRun<yzd::YZDLiveness>(yzd_setting, graph, resultsOfAllIterations);
+    yzd::AnalysisSetting yzd_setting(yzd::TaskName::yzd_liveness, maxIteration, sync_or_async,
+                                     if_idx_reorganized);
+    return YZDRun<yzd::YZDLiveness>(yzd_setting, graph, resultsOfAllIterations, edgeListToSavePtr);
+  } else if (analysisName == "yzd_dominance") {
+    yzd::AnalysisSetting yzd_setting(yzd::TaskName::yzd_dominance, maxIteration, sync_or_async,
+                                     if_idx_reorganized);
+    return YZDRun<yzd::YZDDominance>(yzd_setting, graph, resultsOfAllIterations, edgeListToSavePtr);
+  } else if (analysisName == "yzd_reachability") {
+    yzd::AnalysisSetting yzd_setting(yzd::TaskName::yzd_reachability, maxIteration, sync_or_async,
+                                     if_idx_reorganized);
+    return YZDRun<yzd::YZDReachability>(yzd_setting, graph, resultsOfAllIterations, edgeListToSavePtr);
   } else {
     return Status(error::Code::INVALID_ARGUMENT, "Invalid analysis: {}", analysisName);
   }

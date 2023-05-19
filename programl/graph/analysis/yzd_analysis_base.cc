@@ -148,11 +148,33 @@ NodeSet AnalysisBase::MeetOperation(const int iterIdx, const NodeSet& targetNode
   return meet_result;
 }
 
+labm8::Status AnalysisBase::RearangeNodeIdx(const NodeSet& node_set) {
+  int start_idx = node_idx_map.size();
+  int num_node = node_set.size();
+  std::vector<int> tmp_old_node_list(node_set.begin(), node_set.end());
+  for (int old_node_idx = 0; old_node_idx < num_node; old_node_idx++) {
+    int old_node = tmp_old_node_list[old_node_idx];
+    if (node_idx_map.contains(old_node)) {
+      return labm8::Status(
+          labm8::error::ABORTED,
+          "The node should not be re-indexed more than once! there must be sth wrong!");
+    }
+    int new_node = start_idx + old_node_idx;
+    node_idx_map[old_node] = new_node;
+  }
+  return labm8::Status::OK;
+}
+
 labm8::Status AnalysisBase::Init_sync() {
   // 同步更新的版本 (worklist的版本)
   auto time_start = std::chrono::high_resolution_clock::now();
-  ParseProgramGraph();              // 需要把program_points 和 interested_points 给算好;
-                                    // adjacencies也算好。这是一个纯虚函数。
+  // ParseProgramGraph();              // 需要把program_points 和 interested_points 给算好;
+  // adjacencies也算好。这是一个纯虚函数。
+  if (analysis_setting.index_reorganized) {
+    RETURN_IF_ERROR(ParseProgramGraph_idx_reorganized());
+  } else {
+    ParseProgramGraph();
+  }
   RETURN_IF_ERROR(InitSettings());  // 这个主要作用往stored_result_set里加初始的结果
 
   std::queue<WorklistItem> work_list;
@@ -298,8 +320,13 @@ labm8::Status AnalysisBase::Init_sync() {
 labm8::Status AnalysisBase::Init_async() {
   // 异步更新的版本 (非worklist)
   auto time_start = std::chrono::high_resolution_clock::now();
-  ParseProgramGraph();              // 需要把program_points 和 interested_points 给算好;
-                                    // adjacencies也算好。这是一个纯虚函数。
+  // ParseProgramGraph();              // 需要把program_points 和 interested_points 给算好;
+  // adjacencies也算好。这是一个纯虚函数。
+  if (analysis_setting.index_reorganized) {
+    RETURN_IF_ERROR(ParseProgramGraph_idx_reorganized());
+  } else {
+    ParseProgramGraph();
+  }
   RETURN_IF_ERROR(InitSettings());  // 这个主要作用往stored_result_set里加初始的结果
 
   bool flag = true;
@@ -370,7 +397,7 @@ labm8::Status AnalysisBase::Init_async() {
 }
 
 labm8::Status AnalysisBase::Run(programl::ResultsEveryIteration* resultsOfAllIterations,
-                                absl::flat_hash_map<int, NodeSet>* adj_to_save) {
+                                EdgeList* edge_list_to_save) {
   if (analysis_setting.sync_or_async == async) {
     RETURN_IF_ERROR(Init_async());
   } else {
@@ -405,20 +432,49 @@ labm8::Status AnalysisBase::Run(programl::ResultsEveryIteration* resultsOfAllIte
 
     *resultsOfAllIterations->add_results_every_iteration() = result_one_iteration_message;
   }
-  if (adj_to_save == nullptr){
+  if (edge_list_to_save == nullptr) {
     return labm8::Status::OK;
   }
   // 接下来就是把相应的邻接矩阵信息存下来
-  if (analysis_setting.task_name == yzd_dominance){
-    for (const auto & item : adjacencies.control_adj_list){
-      (*adj_to_save)[item.first] = NodeSet(item.second.begin(), item.second.end());
+  int num_node_of_this_graph = 0;
+  if (analysis_setting.task_name == yzd_liveness) {
+    // 第一行存的是 (num_pp, num_ip, unset_edge)
+    edge_list_to_save->emplace_back(GetNumProgramPoints(), GetNumInterestedPoints());
+    // 然后开始存control edge, gen edge, kill edge
+    for (int pp = 0; pp < GetNumProgramPoints(); pp++) {
+      for (const int& target_pp : adjacencies.control_reverse_adj_list[pp]) {
+        edge_list_to_save->emplace_back(pp, target_pp, control_edge);
+      }
+      for (const int& gen_ip : gens[pp]) {
+        edge_list_to_save->emplace_back(pp, gen_ip, gen_edge);
+      }
+      for (const int& kill_ip : kills[pp]) {
+        edge_list_to_save->emplace_back(pp, kill_ip, kill_edge);
+      }
     }
-  }
-  else{
+  } else if (analysis_setting.task_name == yzd_dominance) {
+    // 第一行存的是 (num_pp, -1, unset)
+    edge_list_to_save->emplace_back(GetNumProgramPoints(), -1);
+    // 然后开始存control edge
+    for (int pp = 0; pp < GetNumProgramPoints(); pp++) {
+      for (const int& target_pp : adjacencies.control_adj_list[pp]) {
+        edge_list_to_save->emplace_back(pp, target_pp);
+      }
+    }
+  } else if (analysis_setting.task_name == yzd_reachability) {
+    // 第一行存的是 (num_pp, -1, unset)
+    edge_list_to_save->emplace_back(GetNumProgramPoints(), -1);
+    // 然后开始存control edge
+    for (int pp = 0; pp < GetNumProgramPoints(); pp++) {
+      for (const int& target_pp : adjacencies.control_reverse_adj_list[pp]) {
+        edge_list_to_save->emplace_back(pp, target_pp);
+      }
+    }
+  } else {
     return labm8::Status(labm8::error::FAILED_PRECONDITION,
-                           "Failed to recognize task_name! currently available: yzd_dominance");
-
+                         "Failed to recognize task_name! currently available: yzd_dominance");
   }
+
   return labm8::Status::OK;
 }
 

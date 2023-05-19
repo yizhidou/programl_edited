@@ -13,6 +13,7 @@ class YZDReachability : public AnalysisBase {
 
  protected:
   virtual void ParseProgramGraph() override;
+  virtual labm8::Status ParseProgramGraph_idx_reorganized() override;
 
  private:
   programl::graph::analysis::ReachabilityAnalysis programl_reachability_analysis;

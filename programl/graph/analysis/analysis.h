@@ -18,6 +18,8 @@
 #include "labm8/cpp/status.h"
 #include "programl/proto/program_graph.pb.h"
 #include "programl/proto/util.pb.h"
+#include "programl/graph/analysis/yzd_utils.h"
+
 
 namespace programl {
 namespace graph {
@@ -28,8 +30,10 @@ namespace analysis {
 labm8::Status RunAnalysis(const string& analysisName, const ProgramGraph& graph,
                           ProgramGraphFeaturesList* featuresList);
 
-labm8::Status RunAnalysis(const string& analysisName, int maxIteration, const ProgramGraph& graph,
-                   ResultsEveryIteration* resultsOfAllIterations);
+labm8::Status RunAnalysis(const string& analysisName, int maxIteration, bool if_sync,
+                          bool if_idx_reorganized, const ProgramGraph& graph,
+                          ResultsEveryIteration* resultsOfAllIterations,
+                          yzd::EdgeList* edgeListToSavePtr);
 
 }  // namespace analysis
 }  // namespace graph

@@ -55,6 +55,8 @@ class AnalysisBase {
   absl::flat_hash_map<int, NodeSet> gens;
   absl::flat_hash_map<int, NodeSet> kills;
 
+  absl::flat_hash_map<int, int> node_idx_map;
+
  private:
   labm8::Status InitSettings();
 
@@ -68,7 +70,7 @@ class AnalysisBase {
   labm8::Status Init_sync();
 
   labm8::Status Run(programl::ResultsEveryIteration* resultsOfAllIterations,
-                    absl::flat_hash_map<int, NodeSet>* adj_to_save = nullptr);
+                    EdgeList* edge_list_save);
 
   int GetNumIteration() const { return result_pointers.size(); }
 
@@ -89,6 +91,8 @@ class AnalysisBase {
   const absl::flat_hash_map<int, NodeSet>& GetKills() const { return kills; }
 
  protected:
+  labm8::Status RearangeNodeIdx(const NodeSet& node_set);
   virtual void ParseProgramGraph() = 0;
+  virtual labm8::Status ParseProgramGraph_idx_reorganized() = 0;
 };
 }  // namespace yzd

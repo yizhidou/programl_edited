@@ -1,3 +1,4 @@
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <unordered_map>
@@ -22,6 +23,15 @@ const char* usage = R"(Run a data-flow validate through programl on a program gr
 Usage:
     validate <task_name[yzd_liveness, yzd_dominance]> <max_iteration> <sync_or_async> < /path/to/program_graph.pb)";
 
+DEFINE_int32(max_iteration, 500, "max iteration that allowed");
+DEFINE_string(program_graph_sourcepath, "unset", "program graph source path");
+DEFINE_bool(sync, false,
+            "if this --sync flag is set to be true, then the message update would be synchronous. "
+            "(default: false)");
+DEFINE_bool(idx_reorganized, true,
+            "if this --idx_reorganized flag is set to be true, then the node idex would be "
+            "reorganized, (default: true)");
+
 static std::unordered_map<std::string, yzd::TaskName> const taskname_table = {
     {"yzd_liveness", yzd::yzd_liveness},
     {"yzd_dominance", yzd::yzd_dominance},
@@ -34,28 +44,44 @@ int main(int argc, char** argv) {
   gflags::SetVersionString(PROGRAML_VERSION);
   labm8::InitApp(&argc, &argv, usage);
 
-  if (argc != 4) {
+  if (argc != 2) {
     std::cerr << usage;
     return 4;
   }
 
   programl::ProgramGraph graph;
-  programl::util::ParseStdinOrDie(&graph);
+  // programl::util::ParseStdinOrDie(&graph);
   std::string task_name_str(argv[1]);
-  std::string sync_or_async_str(argv[3]);
+  // std::string sync_or_async_str(argv[3]);
+  std::ifstream pg_output_stream(FLAGS_program_graph_sourcepath);
+  if (pg_output_stream.is_open()) {
+    if (!graph.ParseFromIstream(&pg_output_stream)) {
+      LOG(ERROR) << "Failed to parse binary protocol buffer from "
+                 << FLAGS_program_graph_sourcepath;
+      return 4;
+    }
+    pg_output_stream.close();
+  } else {
+    LOG(ERROR) << "Failed to open program graph source path!";
+    return 4;
+  }
 
-  int maxIteration = std::atoi(argv[2]);
+  // int maxIteration = std::atoi(argv[2]);
   auto it_t = taskname_table.find(task_name_str);
   if (it_t == taskname_table.end()) {
     std::cerr << "unrecognized taskname! Currently available: yzd_liveness, yzd_dominance";
     return 4;
   }
-  auto it_s = sync_or_async_table.find(sync_or_async_str);
-  if (it_s == sync_or_async_table.end()){
-    std::cerr << "unrecognized sync_or_async indicator! Currently available: sync (worklist), async (not worklist)";
-    return 4;
-  }
-  yzd::AnalysisSetting yzd_setting(it_t->second, maxIteration, it_s->second);
+  // auto it_s = sync_or_async_table.find(sync_or_async_str);
+  // if (it_s == sync_or_async_table.end()) {
+  //   std::cerr << "unrecognized sync_or_async indicator! Currently available: sync (worklist), "
+  //                "async (not worklist)";
+  //   return 4;
+  // }
+  // bool if_idx_reorganized = false;
+  yzd::SyncOrAsync sync_or_async = FLAGS_sync ? yzd::sync : yzd::async;
+  yzd::AnalysisSetting yzd_setting(it_t->second, FLAGS_max_iteration, sync_or_async,
+                                   FLAGS_idx_reorganized); 
   Status status;
   if (task_name_str == "yzd_liveness") {
     status = yzd::YZDLiveness(graph, yzd_setting).ValidateWithPrograml();

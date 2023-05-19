@@ -51,7 +51,12 @@ DEFINE_int32(max_iteration, 500, "max iteration that allowed");
 DEFINE_string(program_graph_sourcepath, "unset", "program graph source path");
 DEFINE_string(edge_list_savepath, "unset", "edge list save path");
 DEFINE_string(result_savepath, "unset", "analysis result save path");
-
+DEFINE_bool(sync, false,
+            "if this --sync flag is set to be true, then the message update would be synchronous. "
+            "(default: false)");
+DEFINE_bool(idx_reorganized, true,
+            "if this --idx_reorganized flag is set to be true, then the node idex would be "
+            "reorganized, (default: true)");
 int main(int argc, char** argv) {
   gflags::SetVersionString(PROGRAML_VERSION);
   labm8::InitApp(&argc, &argv, usage);
@@ -75,6 +80,7 @@ int main(int argc, char** argv) {
                  << FLAGS_program_graph_sourcepath;
       return 4;
     }
+    pg_output_stream.close();
   } else {
     LOG(ERROR) << "Failed to open program graph source path!";
     return 4;
@@ -101,9 +107,12 @@ int main(int argc, char** argv) {
       return 4;
     }
     programl::ResultsEveryIteration resultsEveryIterationMessage;
+    yzd::EdgeList edgeList;
     // int maxIteration = std::atoi(argv[2]);
-    status = programl::graph::analysis::RunAnalysis(task_name, FLAGS_max_iteration, graph,
-                                                    &resultsEveryIterationMessage);
+    std::cout << "FLAGS_idx_reorganized = " << FLAGS_idx_reorganized << std::endl;
+    status = programl::graph::analysis::RunAnalysis(task_name, FLAGS_max_iteration, FLAGS_sync,
+                                                    FLAGS_idx_reorganized, graph,
+                                                    &resultsEveryIterationMessage, &edgeList);
     // yzd::AnalysisSetting yzd_setting(yzd::TaskName::yzd_liveness, maxIteration);
     // status = yzd::YZDLiveness(graph, yzd_setting).ValidateWithPrograml();
     if (!status.ok()) {
@@ -112,7 +121,7 @@ int main(int argc, char** argv) {
     }
 
     if (FLAGS_result_savepath == "unset") {
-      programl::util::WriteStdout(resultsEveryIterationMessage);
+      // programl::util::WriteStdout(resultsEveryIterationMessage);
     } else {
       // std::ofstream result_record_stream;
       // result_record_stream.open(FLAGS_result_savepath);
@@ -121,6 +130,22 @@ int main(int argc, char** argv) {
       result_record_stream.close();
     }
     // programl::util::WriteStdout(resultsEveryIterationMessage);
+
+    if (FLAGS_edge_list_savepath != "unset") {
+      std::ofstream file(FLAGS_edge_list_savepath);
+      if (task_name == "yzd_dominance" || task_name == "yzd_reachability") {
+        for (const auto& edge : edgeList) {
+          file << edge.source_node << "," << edge.target_node << "\n";
+        }
+
+      } else if (task_name == "yzd_liveness") {
+        for (const auto& edge : edgeList) {
+          file << edge.source_node << "," << edge.target_node << "," << edge.edge_type << "\n";
+        }
+      }
+
+      file.close();
+    }
   }
 
   return 0;

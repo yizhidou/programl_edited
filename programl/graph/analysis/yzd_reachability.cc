@@ -5,6 +5,7 @@
 namespace yzd {
 void YZDReachability::ParseProgramGraph() {  // 需要把program_points 和 interested_points 给算好;
                                              // gens/kills 算好； adjacencies也算好
+  std::cout << "yzd_reachability: We do not rearange node idx!" << std::endl;
   for (int edge_idx = 0; edge_idx < program_graph.edge_size(); edge_idx++) {
     const programl::Edge& cur_edge = program_graph.edge(edge_idx);
     if (cur_edge.flow() == programl::Edge::CONTROL) {
@@ -27,14 +28,54 @@ void YZDReachability::ParseProgramGraph() {  // 需要把program_points 和 inte
     }
   }
 }
+
+labm8::Status YZDReachability::ParseProgramGraph_idx_reorganized() {
+  // 需要把program_points 和 interested_points 给算好;
+  // gens/kills 算好； adjacencies也算好
+  std::cout << "yzd_reachability: We do rearange node idx!" << std::endl;
+  NodeSet tmp_program_points;
+  for (const auto& cur_edge : program_graph.edge()) {
+    if (cur_edge.flow() == programl::Edge::CONTROL) {
+      tmp_program_points.insert(cur_edge.source());
+      tmp_program_points.insert(cur_edge.target());
+    }
+  }
+  node_idx_map.reserve(tmp_program_points.size());
+  RETURN_IF_ERROR(RearangeNodeIdx(tmp_program_points));
+
+  for (const auto& cur_edge : program_graph.edge()) {
+    int new_source = -1, new_target = -1;
+    if (cur_edge.flow() == programl::Edge::CONTROL) {
+      new_source = node_idx_map[cur_edge.source()];
+      new_target = node_idx_map[cur_edge.target()];
+
+      adjacencies.control_adj_list[new_source].insert(new_target);
+      adjacencies.control_reverse_adj_list[new_target].insert(new_source);
+      if (!adjacencies.control_adj_list.contains(new_target)) {
+        adjacencies.control_adj_list[new_target] = {};
+      }
+      if (!adjacencies.control_reverse_adj_list.contains(new_source)) {
+        adjacencies.control_reverse_adj_list[new_source] = {};
+      }
+      program_points.insert(new_source);
+      program_points.insert(new_target);
+      interested_points.insert(new_source);
+      interested_points.insert(new_target);
+      gens[new_source].insert(new_source);
+      gens[new_target].insert(new_target);
+      kills[new_source];  // 其实不是很确定是不是这样就initialize了一个empty的NodeSet
+      kills[new_target];
+    }
+  }
+}
+
 labm8::Status YZDReachability::ValidateWithPrograml() {
   // std::cout << "we are good at line 25, validate.cc" << std::endl;
   RETURN_IF_ERROR(programl_reachability_analysis.Init());
   // std::cout << "we are good at line 27, validate.cc" << std::endl;
-  if (analysis_setting.sync_or_async == async){
+  if (analysis_setting.sync_or_async == async) {
     RETURN_IF_ERROR(Init_async());
-  }
-  else{
+  } else {
     RETURN_IF_ERROR(Init_sync());
   }
   // std::cout << "we are good at line 29, validate.cc" << std::endl;
@@ -42,17 +83,31 @@ labm8::Status YZDReachability::ValidateWithPrograml() {
   //   absl::flat_hash_map<int, yzd::NodeSet> programl_reachability_result;
   int sim_count = 0, diff_count = 0;
   // std::cout << "we are good at line 33, validate.cc" << std::endl;
-  for (const auto& pp : programl_reachability_analysis.GetEligibleRootNodes()) {
-    RETURN_IF_ERROR(programl_reachability_analysis.CalculateResultFromRootNode(pp));
+  for (const auto& eligible_pp_from_programl :
+       programl_reachability_analysis.GetEligibleRootNodes()) {
+    RETURN_IF_ERROR(
+        programl_reachability_analysis.CalculateResultFromRootNode(eligible_pp_from_programl));
     // std::cout << "we are good at line 36, validate.cc. current rootNode = " << pp << std::endl;
-    NodeSet programl_result_for_this_root = programl_reachability_analysis.GetResultFromRootNode();
+    NodeSet programl_result_for_this_root;
+    int test_node = -1;
+    if (analysis_setting.index_reorganized) {
+      test_node = node_idx_map[eligible_pp_from_programl];
+      RETURN_IF_ERROR(GetRemapedNodeset(programl_result_for_this_root,
+                                        programl_reachability_analysis.GetResultFromRootNode(),
+                                        node_idx_map));
+    } else {
+      test_node = eligible_pp_from_programl;
+      programl_result_for_this_root = programl_reachability_analysis.GetResultFromRootNode();
+    }
 
-    const auto yzd_iter = yzd_last_result.find(pp);
+    const auto yzd_iter = yzd_last_result.find(test_node);
     if (!(yzd_iter == yzd_last_result.end())) {
-      assert((program_graph.node(pp).type() == programl::Node::INSTRUCTION) &&
-             "The intersected node should be an instruction node!");
+      assert(
+          (program_graph.node(eligible_pp_from_programl).type() == programl::Node::INSTRUCTION) &&
+          "The intersected node should be an instruction node!");
       if (!(yzd_iter->second == programl_result_for_this_root)) {
-        std::cout << "inconsistency occurs! program_point is: " << pp << std::endl;
+        std::cout << "inconsistency occurs! program_point is: " << eligible_pp_from_programl
+                  << std::endl;
         std::cout << "result from yzd: " << yzd_iter->second << std::endl;
         std::cout << "result from pro: " << programl_result_for_this_root << std::endl;
         // std::cout << "diff = " << yzd_iter->second - programl_dominators[pp] << std::endl;
