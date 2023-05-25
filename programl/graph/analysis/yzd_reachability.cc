@@ -67,6 +67,14 @@ labm8::Status YZDReachability::ParseProgramGraph_idx_reorganized() {
       kills[new_target];
     }
   }
+
+  // std::cout << "all pp are: " << program_points << std::endl;
+  // std::cout << "and the map is: " << std::endl;
+  // for (auto iter = node_idx_map.begin(); iter != node_idx_map.end(); ++iter) {
+  //   std::cout << iter->first << ": " << iter->second << std::endl;
+  // }
+  // std::cout << "till yzd_reachability.cc line 76 all good" << std::endl;
+  return labm8::Status::OK;
 }
 
 labm8::Status YZDReachability::ValidateWithPrograml() {
@@ -82,7 +90,7 @@ labm8::Status YZDReachability::ValidateWithPrograml() {
   const absl::flat_hash_map<int, NodeSet> yzd_last_result = GetLastIterationResult();
   //   absl::flat_hash_map<int, yzd::NodeSet> programl_reachability_result;
   int sim_count = 0, diff_count = 0;
-  // std::cout << "we are good at line 33, validate.cc" << std::endl;
+
   for (const auto& eligible_pp_from_programl :
        programl_reachability_analysis.GetEligibleRootNodes()) {
     RETURN_IF_ERROR(
@@ -91,6 +99,9 @@ labm8::Status YZDReachability::ValidateWithPrograml() {
     NodeSet programl_result_for_this_root;
     int test_node = -1;
     if (analysis_setting.index_reorganized) {
+      if (!node_idx_map.contains(eligible_pp_from_programl)) {
+        continue;
+      }
       test_node = node_idx_map[eligible_pp_from_programl];
       RETURN_IF_ERROR(GetRemapedNodeset(programl_result_for_this_root,
                                         programl_reachability_analysis.GetResultFromRootNode(),
@@ -108,6 +119,7 @@ labm8::Status YZDReachability::ValidateWithPrograml() {
       if (!(yzd_iter->second == programl_result_for_this_root)) {
         std::cout << "inconsistency occurs! program_point is: " << eligible_pp_from_programl
                   << std::endl;
+        std::cout << "corresponding test_node is: " << test_node << std::endl;
         std::cout << "result from yzd: " << yzd_iter->second << std::endl;
         std::cout << "result from pro: " << programl_result_for_this_root << std::endl;
         // std::cout << "diff = " << yzd_iter->second - programl_dominators[pp] << std::endl;
@@ -118,6 +130,15 @@ labm8::Status YZDReachability::ValidateWithPrograml() {
         // std::cout << "sim for pp: " << pp << std::endl;
         // std::cout << "result from yzd: " << yzd_iter->second << std::endl;
         // std::cout << "result from pro: " << programl_result_for_this_root << std::endl;
+        // below is for test
+        // std::cout << "result for node " << eligible_pp_from_programl << " is the same~"
+        //           << std::endl;
+        // if (eligible_pp_from_programl == 4) {
+        //   std::cout << "specifically check node 4:" << std::endl;
+        //   std::cout << "result from yzd: " << yzd_iter->second << std::endl;
+        //   std::cout << "result from pro: " << programl_result_for_this_root << std::endl;
+        // }
+        // test ends
         sim_count++;
       }
     }

@@ -67,8 +67,15 @@ labm8::Status YZDLiveness::ParseProgramGraph_idx_reorganized() {
       tmp_program_points.insert(edge.source());
       tmp_program_points.insert(edge.target());
     } else if (edge.flow() == programl::Edge::DATA) {
-      tmp_program_points.insert(edge.source());
-      tmp_interested_points.insert(edge.target());
+      if (program_graph.node(edge.source()).type() == programl::Node::INSTRUCTION) {  // def edge
+        tmp_program_points.insert(edge.source());
+        tmp_interested_points.insert(edge.target());
+      } else {  // use edge
+        assert((program_graph.node(edge.target()).type() == programl::Node::INSTRUCTION) &&
+               "the target of this edge should be an instruction");
+        tmp_interested_points.insert(edge.source());
+        tmp_program_points.insert(edge.target());
+      }
     }
   }
   node_idx_map.reserve(tmp_program_points.size() + tmp_interested_points.size());
@@ -120,7 +127,7 @@ labm8::Status YZDLiveness::ValidateWithPrograml() {
   const std::vector<absl::flat_hash_set<int>> programl_result =
       programl_liveness_analysis.live_in_sets();
   const absl::flat_hash_map<int, NodeSet> yzd_last_result = GetLastIterationResult();
-  int sim_count = 0;
+  int sim_count = 0, diff_count = 0;
   for (int node_idx = 0; node_idx < programl_result.size(); node_idx++) {
     int test_node = -1;
     if (analysis_setting.index_reorganized) {
@@ -150,6 +157,7 @@ labm8::Status YZDLiveness::ValidateWithPrograml() {
         programl_result_for_this_test_node = programl_result[node_idx];
       }
       if (!(yzd_iter->second == programl_result_for_this_test_node)) {
+        diff_count++;
         return labm8::Status(labm8::error::ABORTED, "The validation did not pass!");
       } else {
         // std::cout << "program point: " << node_idx << std::endl;
@@ -166,7 +174,7 @@ labm8::Status YZDLiveness::ValidateWithPrograml() {
     //     return labm8::Status(labm8::error::ABORTED, "The validation did not pass!");
     //   }
   }
-  std::cout << "sim_count = " << sim_count << std::endl;
+  std::cout << "sim_count = " << sim_count << "; dif_count = " << diff_count << std::endl;
   if (sim_count == GetNumProgramPoints()) {
     std::cout << "validation passed~" << std::endl;
   } else {

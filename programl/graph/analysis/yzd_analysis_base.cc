@@ -155,6 +155,9 @@ labm8::Status AnalysisBase::RearangeNodeIdx(const NodeSet& node_set) {
   for (int old_node_idx = 0; old_node_idx < num_node; old_node_idx++) {
     int old_node = tmp_old_node_list[old_node_idx];
     if (node_idx_map.contains(old_node)) {
+      std::cout << "The node should not be re-indexed more than once!" << std::endl
+                << "the node is: " << old_node
+                << ", and its type is: " << program_graph.node(old_node).type() << std::endl;
       return labm8::Status(
           labm8::error::ABORTED,
           "The node should not be re-indexed more than once! there must be sth wrong!");
@@ -309,6 +312,10 @@ labm8::Status AnalysisBase::Init_sync() {
     //           << ", and their iteration number would be " << cur_iter_idx + 1 << std::endl;
   }
   std::cout << TaskNameToStrTable[analysis_setting.task_name]
+            << " num_pp: " << GetNumProgramPoints() << std::endl;
+  std::cout << TaskNameToStrTable[analysis_setting.task_name]
+            << " num_ip: " << GetNumInterestedPoints() << std::endl;
+  std::cout << TaskNameToStrTable[analysis_setting.task_name]
             << " num_iteration: " << total_iter_num << std::endl;
   auto time_end = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(time_end - time_start);
@@ -328,7 +335,6 @@ labm8::Status AnalysisBase::Init_async() {
     ParseProgramGraph();
   }
   RETURN_IF_ERROR(InitSettings());  // 这个主要作用往stored_result_set里加初始的结果
-
   bool flag = true;
   int cur_iter_idx = 0;
   while (flag) {
@@ -387,6 +393,10 @@ labm8::Status AnalysisBase::Init_async() {
       result_pointers[cur_iter_idx][cur_node_idx] = stored_nodesets.size() - 1;
     }
   }
+  std::cout << TaskNameToStrTable[analysis_setting.task_name]
+            << " num_pp: " << GetNumProgramPoints() << std::endl;
+  std::cout << TaskNameToStrTable[analysis_setting.task_name]
+            << " num_ip: " << GetNumInterestedPoints() << std::endl;
   std::cout << TaskNameToStrTable[analysis_setting.task_name] << " num_iteration: " << cur_iter_idx
             << std::endl;
   auto time_end = std::chrono::high_resolution_clock::now();

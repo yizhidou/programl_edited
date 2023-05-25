@@ -1,4 +1,5 @@
 #include "yzd_utils.h"
+#include <algorithm>
 // #include "labm8/cpp/status.h"
 // #include <bitset>
 // #include <cstddef>
@@ -65,7 +66,9 @@ std::ostream& operator<<(std::ostream& os, const NodeSet& nodeSet) {
     return os;
   }
   os << "[";
-  for (int node_idx : nodeSet) {
+  std::vector<int> tmp_list(nodeSet.begin(), nodeSet.end());
+  std::sort(tmp_list.begin(), tmp_list.end());
+  for (int node_idx : tmp_list) {
     os << " " << node_idx;
   }
   os << "]";
