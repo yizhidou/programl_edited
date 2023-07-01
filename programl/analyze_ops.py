@@ -12,6 +12,31 @@ from programl import ResultsEveryIteration
 ANALYZE_BINARY = str(runfiles_path("programl/bin/analyze"))
 CHECK_BINARY = str(runfiles_path("programl/bin/validate"))
 
+def yzd_analyze_cmd_list(task_name: str,
+                         max_iteration: int,
+                         program_graph_sourcepath: str,
+                         edge_list_savepath: Union[None, str] = None,
+                         result_savepath: Union[None, str] = None,
+                         if_sync: bool = False,
+                         if_idx_reorganized: bool = True):
+    cmd_list = [ANALYZE_BINARY, task_name, '--max_iteration', str(max_iteration), '--program_graph_sourcepath', program_graph_sourcepath]
+    if edge_list_savepath:
+        cmd_list.append('--edge_list_savepath')
+        cmd_list.append(edge_list_savepath)
+    if result_savepath:
+        cmd_list.append('--result_savepath')
+        cmd_list.append(result_savepath)
+    if if_sync:
+        cmd_list.append('--sync=true')
+    else:
+        cmd_list.append('--sync=false')
+    if if_idx_reorganized:
+        cmd_list.append('--idx_reorganized=true')
+    else:
+        cmd_list.append('--idx_reorganized=false')
+    return cmd_list
+
+
 def _yzd_result_from_subprocess(process, stdout, stderr):
     if process.returncode:
         try:
@@ -28,25 +53,24 @@ def _yzd_result_from_subprocess(process, stdout, stderr):
 
 def yzd_analyze(task_name: str,
                 max_iteration: int,
-                srcs: Union[str, Iterable[str]],
-                timeout: int = 300,
-                executor: Optional[ExecutorLike] = None,
-                chunksize: Optional[int] = None,):
-    def _run_one(src: str):
-        process = subprocess.Popen(args=[ANALYZE_BINARY, task_name, max_iteration],
-                                   stdin=subprocess.PIPE,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        # os.close(out_stream)
-        try:
-            stdout, stderr = process.communicate(src.encode("utf-8"), timeout=timeout)
-        except subprocess.TimeoutExpired as e:
-            raise TimeoutError(str(e)) from e
-        return _yzd_result_from_subprocess(process, stdout, stderr)
+                program_graph_sourcepath: str,
+                edge_list_savepath: Union[None, str] = None,
+                result_savepath: Union[None, str] = None,
+                if_sync: bool = False,
+                if_idx_reorganized: bool = True,
+                timeout: int = 300):
+    process = subprocess.Popen(args=yzd_analyze_cmd_list(task_name, max_iteration, program_graph_sourcepath, edge_list_savepath, result_savepath, if_sync, if_idx_reorganized),
+                               stdin=subprocess.PIPE,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+    try:
+        stdout, stderr = process.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired as e:
+        raise TimeoutError(str(e)) from e
+    # 这里需要从stdout中parse出result和各种信息
+    return stdout
+    # return _yzd_result_from_subprocess(process, stdout, stderr)
 
-    if isinstance(srcs, str):
-        return _run_one(srcs)
-    return execute(_run_one, srcs, executor, chunksize)
 
 def yzd_check(task_name: str,
               max_iteration: int,

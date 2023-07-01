@@ -60,7 +60,7 @@ labm8::Status YZDLiveness::ParseProgramGraph_idx_reorganized() {
   // 需要把program_points 和 interested_points 给算好;
   // gens/kills 算好； adjacencies也算好;
   // idx_reorganized_map设置好
-  std::cout << "yzd_liveness: We do rearange node idx!" << std::endl;
+  // std::cout << "yzd_liveness: We do rearange node idx!" << std::endl;
   NodeSet tmp_program_points, tmp_interested_points;
   for (const auto& edge : program_graph.edge()) {
     if (edge.flow() == programl::Edge::CONTROL) {

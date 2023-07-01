@@ -19,6 +19,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <string>
 
 #include "labm8/cpp/app.h"
 #include "labm8/cpp/logging.h"
@@ -109,7 +110,7 @@ int main(int argc, char** argv) {
     programl::ResultsEveryIteration resultsEveryIterationMessage;
     yzd::EdgeList edgeList;
     // int maxIteration = std::atoi(argv[2]);
-    std::cout << "FLAGS_idx_reorganized = " << FLAGS_idx_reorganized << std::endl;
+    // std::cout << "FLAGS_idx_reorganized = " << FLAGS_idx_reorganized << std::endl;
     status = programl::graph::analysis::RunAnalysis(task_name, FLAGS_max_iteration, FLAGS_sync,
                                                     FLAGS_idx_reorganized, graph,
                                                     &resultsEveryIterationMessage, &edgeList);
@@ -120,32 +121,39 @@ int main(int argc, char** argv) {
       return 4;
     }
 
-    if (FLAGS_result_savepath == "unset") {
-      // programl::util::WriteStdout(resultsEveryIterationMessage);
-    } else {
-      // std::ofstream result_record_stream;
-      // result_record_stream.open(FLAGS_result_savepath);
+    // edge results record
+    std::string edge_result_str = "";
+    if (task_name == "yzd_dominance" || task_name == "yzd_reachability") {
+      for (const auto& edge : edgeList) {
+        edge_result_str +=
+            (std::to_string(edge.source_node) + " " + std::to_string(edge.target_node) + " ");
+      }
+
+    } else if (task_name == "yzd_liveness") {
+      for (const auto& edge : edgeList) {
+        edge_result_str +=
+            (std::to_string(edge.source_node) + " " + std::to_string(edge.target_node) + " " +
+             std::to_string(edge.edge_type) + " ");
+      }
+    }
+    if (FLAGS_edge_list_savepath != "unset") {
+      std::ofstream file(FLAGS_edge_list_savepath);
+      file << edge_result_str;
+      file.close();
+    }
+    std::size_t edge_size_in_byte = edge_result_str.size() * sizeof(char);
+    std::cout << task_name << " edge_size_in_byte: " << edge_size_in_byte << std::endl;
+    std::cout << edge_result_str;
+
+    // result trace record
+    if (FLAGS_result_savepath != "unset") {
       std::fstream result_record_stream(FLAGS_result_savepath, std::ios::out | std::ios::binary);
       resultsEveryIterationMessage.SerializeToOstream(&result_record_stream);
       result_record_stream.close();
     }
     // programl::util::WriteStdout(resultsEveryIterationMessage);
-
-    if (FLAGS_edge_list_savepath != "unset") {
-      std::ofstream file(FLAGS_edge_list_savepath);
-      if (task_name == "yzd_dominance" || task_name == "yzd_reachability") {
-        for (const auto& edge : edgeList) {
-          file << edge.source_node << "," << edge.target_node << "\n";
-        }
-
-      } else if (task_name == "yzd_liveness") {
-        for (const auto& edge : edgeList) {
-          file << edge.source_node << "," << edge.target_node << "," << edge.edge_type << "\n";
-        }
-      }
-
-      file.close();
-    }
+    std::ostream cout_stream_result(std::cout.rdbuf());
+    resultsEveryIterationMessage.SerializeToOstream(&cout_stream_result);
   }
 
   return 0;

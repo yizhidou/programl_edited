@@ -57,6 +57,7 @@ from programl.validate_ops import validate_one_file
 from programl.transform_ops import to_dgl, to_dot, to_json, to_networkx
 from programl.util.py.runfiles_path import runfiles_path
 from programl.version import PROGRAML_VERSION
+from programl.analyze_ops import yzd_analyze
 
 __version__ = PROGRAML_VERSION
 __author__ = "Chris Cummins"
@@ -90,4 +91,5 @@ __all__ = [
     "UnsupportedCompiler",
     "validate_one_file",
     "ValidationError",
+    "yzd_analyze"
 ]

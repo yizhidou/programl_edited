@@ -24,6 +24,7 @@ py_library(
         "validate_ops.py",
         "transform_ops.py",
         "version.py",
+        "analyze_ops.py"
     ],
     data = [
         "//programl/bin",

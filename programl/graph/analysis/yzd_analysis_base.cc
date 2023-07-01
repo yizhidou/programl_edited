@@ -53,7 +53,7 @@ labm8::Status AnalysisBase::InitSettings() {
   //   return labm8::Status(labm8::error::FAILED_PRECONDITION,
   //                        "The graph has multiple root! We currently cannot handle this...");
   // }
-  std::cout << TaskNameToStrTable[analysis_setting.task_name] << " num_be: " << _num_be
+  std::cout << TaskNameToStrTable[analysis_setting.task_name] << " num_be " << _num_be
             << std::endl;
 
   // add result of iteration 0 into result_pointers.
@@ -152,6 +152,7 @@ labm8::Status AnalysisBase::RearangeNodeIdx(const NodeSet& node_set) {
   int start_idx = node_idx_map.size();
   int num_node = node_set.size();
   std::vector<int> tmp_old_node_list(node_set.begin(), node_set.end());
+  std::sort(tmp_old_node_list.begin(), tmp_old_node_list.end());
   for (int old_node_idx = 0; old_node_idx < num_node; old_node_idx++) {
     int old_node = tmp_old_node_list[old_node_idx];
     if (node_idx_map.contains(old_node)) {
@@ -312,15 +313,15 @@ labm8::Status AnalysisBase::Init_sync() {
     //           << ", and their iteration number would be " << cur_iter_idx + 1 << std::endl;
   }
   std::cout << TaskNameToStrTable[analysis_setting.task_name]
-            << " num_pp: " << GetNumProgramPoints() << std::endl;
+            << " num_pp " << GetNumProgramPoints() << std::endl;
   std::cout << TaskNameToStrTable[analysis_setting.task_name]
-            << " num_ip: " << GetNumInterestedPoints() << std::endl;
+            << " num_ip " << GetNumInterestedPoints() << std::endl;
   std::cout << TaskNameToStrTable[analysis_setting.task_name]
-            << " num_iteration: " << total_iter_num << std::endl;
+            << " num_iteration(sync) " << total_iter_num << std::endl;
   auto time_end = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(time_end - time_start);
   std::cout << TaskNameToStrTable[analysis_setting.task_name]
-            << " time_duration(worklist): " << duration.count() << std::endl;
+            << " time_duration(sync) " << duration.count() << std::endl;
   return labm8::Status::OK;
 }
 
@@ -394,15 +395,15 @@ labm8::Status AnalysisBase::Init_async() {
     }
   }
   std::cout << TaskNameToStrTable[analysis_setting.task_name]
-            << " num_pp: " << GetNumProgramPoints() << std::endl;
+            << " num_pp " << GetNumProgramPoints() << std::endl;
   std::cout << TaskNameToStrTable[analysis_setting.task_name]
-            << " num_ip: " << GetNumInterestedPoints() << std::endl;
-  std::cout << TaskNameToStrTable[analysis_setting.task_name] << " num_iteration: " << cur_iter_idx
+            << " num_ip " << GetNumInterestedPoints() << std::endl;
+  std::cout << TaskNameToStrTable[analysis_setting.task_name] << " num_iteration(async) " << cur_iter_idx
             << std::endl;
   auto time_end = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>(time_end - time_start);
   std::cout << TaskNameToStrTable[analysis_setting.task_name]
-            << " time_duration(non-worklist): " << duration.count() << std::endl;
+            << " time_duration(async) " << duration.count() << std::endl;
   return labm8::Status::OK;
 }
 
