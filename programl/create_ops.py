@@ -23,7 +23,7 @@ import google.protobuf.message
 
 from programl.exceptions import GraphCreationError, UnsupportedCompiler
 from programl.proto import ProgramGraph
-from programl.third_party.tensorflow.xla_pb2 import HloProto
+# from programl.third_party.tensorflow.xla_pb2 import HloProto
 from programl.util.py.cc_system_includes import get_system_includes
 from programl.util.py.executor import ExecutorLike, execute
 from programl.util.py.runfiles_path import runfiles_path
@@ -367,59 +367,59 @@ def from_llvm_ir(
 # XLA.
 
 
-def from_xla_hlo_proto(
-    hlos: Union[HloProto, Iterable[HloProto]],
-    timeout=300,
-    executor: Optional[ExecutorLike] = None,
-    chunksize: Optional[int] = None,
-) -> Union[ProgramGraph, Iterable[ProgramGraph]]:
-    """Construct a Program Graph from an XLA HLO protocol buffer.
+# def from_xla_hlo_proto(
+#     hlos: Union[HloProto, Iterable[HloProto]],
+#     timeout=300,
+#     executor: Optional[ExecutorLike] = None,
+#     chunksize: Optional[int] = None,
+# ) -> Union[ProgramGraph, Iterable[ProgramGraph]]:
+#     """Construct a Program Graph from an XLA HLO protocol buffer.
 
-    :param hlos: A :code:`HloProto`, or an iterable sequence of :code:`HloProto`
-        instances.
+#     :param hlos: A :code:`HloProto`, or an iterable sequence of :code:`HloProto`
+#         instances.
 
-    :param timeout: The maximum number of seconds to wait for an individual
-        graph construction invocation before raising an error. If multiple
-        inputs are provided, this timeout is per-input.
+#     :param timeout: The maximum number of seconds to wait for an individual
+#         graph construction invocation before raising an error. If multiple
+#         inputs are provided, this timeout is per-input.
 
-    :param executor: An executor object, with method :code:`submit(callable,
-        *args, **kwargs)` and returning a Future-like object with methods
-        :code:`done() -> bool` and :code:`result() -> float`. The executor role
-        is to dispatch the execution of the jobs locally/on a cluster/with
-        multithreading depending on the implementation. Eg:
-        :code:`concurrent.futures.ThreadPoolExecutor`. Defaults to single
-        threaded execution. This is only used when multiple inputs are given.
+#     :param executor: An executor object, with method :code:`submit(callable,
+#         *args, **kwargs)` and returning a Future-like object with methods
+#         :code:`done() -> bool` and :code:`result() -> float`. The executor role
+#         is to dispatch the execution of the jobs locally/on a cluster/with
+#         multithreading depending on the implementation. Eg:
+#         :code:`concurrent.futures.ThreadPoolExecutor`. Defaults to single
+#         threaded execution. This is only used when multiple inputs are given.
 
-    :param chunksize: The number of inputs to read and process at a time. A
-        larger chunksize improves parallelism but increases memory consumption
-        as more inputs must be stored in memory.
+#     :param chunksize: The number of inputs to read and process at a time. A
+#         larger chunksize improves parallelism but increases memory consumption
+#         as more inputs must be stored in memory.
 
-    :return: If :code:`hlos` is a single input, returns a single
-        :code:`programl.ProgramGraph` instance. Else returns a generator over
-        :code:`programl.ProgramGraph` instances.
+#     :return: If :code:`hlos` is a single input, returns a single
+#         :code:`programl.ProgramGraph` instance. Else returns a generator over
+#         :code:`programl.ProgramGraph` instances.
 
-    :raises GraphCreationError: If graph construction fails.
+#     :raises GraphCreationError: If graph construction fails.
 
-    :raises TimeoutError: If the specified timeout is reached.
-    """
+#     :raises TimeoutError: If the specified timeout is reached.
+#     """
 
-    def _run_one(hlo: HloProto) -> ProgramGraph:
-        process = subprocess.Popen(
-            [XLA2GRAPH, "--stdin_fmt=pb", "--stdout_fmt=pb"],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
+#     def _run_one(hlo: HloProto) -> ProgramGraph:
+#         process = subprocess.Popen(
+#             [XLA2GRAPH, "--stdin_fmt=pb", "--stdout_fmt=pb"],
+#             stdin=subprocess.PIPE,
+#             stdout=subprocess.PIPE,
+#             stderr=subprocess.PIPE,
+#         )
 
-        try:
-            stdout, stderr = process.communicate(
-                hlo.SerializeToString(), timeout=timeout
-            )
-        except subprocess.TimeoutExpired as e:
-            raise TimeoutError(str(e)) from e
+#         try:
+#             stdout, stderr = process.communicate(
+#                 hlo.SerializeToString(), timeout=timeout
+#             )
+#         except subprocess.TimeoutExpired as e:
+#             raise TimeoutError(str(e)) from e
 
-        return _graph_from_subprocess(process, stdout, stderr)
+#         return _graph_from_subprocess(process, stdout, stderr)
 
-    if isinstance(hlos, HloProto):
-        return _run_one(hlos)
-    return execute(_run_one, hlos, executor, chunksize)
+#     if isinstance(hlos, HloProto):
+#         return _run_one(hlos)
+#     return execute(_run_one, hlos, executor, chunksize)

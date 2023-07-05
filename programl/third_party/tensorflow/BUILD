@@ -26,20 +26,20 @@ py_proto_library(
     deps = [":features"],
 )
 
-proto_library(
-    name = "xla",
-    srcs = ["xla.proto"],
-    visibility = ["//visibility:public"],
-)
+# proto_library(
+#     name = "xla",
+#     srcs = ["xla.proto"],
+#     visibility = ["//visibility:public"],
+# )
 
-py_proto_library(
-    name = "xla_py",
-    visibility = ["//visibility:public"],
-    deps = [":xla"],
-)
+# py_proto_library(
+#     name = "xla_py",
+#     visibility = ["//visibility:public"],
+#     deps = [":xla"],
+# )
 
-cc_proto_library(
-    name = "xla_cc",
-    visibility = ["//visibility:public"],
-    deps = [":xla"],
-)
+# cc_proto_library(
+#     name = "xla_cc",
+#     visibility = ["//visibility:public"],
+#     deps = [":xla"],
+# )

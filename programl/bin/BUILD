@@ -33,13 +33,13 @@ filegroup(
         ":llvm2graph-10",
         # ":llvm2graph-3.8",
         # ":llvm2graph-6",
-        ":xla2graph",
+        # ":xla2graph",
         ":analyze",
         "validate",
         ":graph2cdfg",
         "graph2yzdgraph",
         # Not used by current Python API: ":graph2seq",
-        ":pbq",
+        # ":pbq",
     ] + select({
         "@llvm//:darwin": [],
         "//conditions:default": [
@@ -361,34 +361,34 @@ cc_binary(
     ],
 )
 
-cc_binary(
-    name = "pbq",
-    srcs = ["pbq.cc"],
-    visibility = ["//visibility:public"],
-    deps = [
-        "//programl:version_header",
-        "//programl/proto:programl_cc",
-        "//programl/third_party/tensorflow:xla_cc",
-        "//programl/util:stdin_fmt",
-        "//programl/util:stdout_fmt",
-        "@com_google_protobuf//:protobuf",
-        "@labm8//labm8/cpp:app",
-    ],
-)
+# cc_binary(
+#     name = "pbq",
+#     srcs = ["pbq.cc"],
+#     visibility = ["//visibility:public"],
+#     deps = [
+#         "//programl:version_header",
+#         "//programl/proto:programl_cc",
+#         # "//programl/third_party/tensorflow:xla_cc",
+#         "//programl/util:stdin_fmt",
+#         "//programl/util:stdout_fmt",
+#         "@com_google_protobuf//:protobuf",
+#         "@labm8//labm8/cpp:app",
+#     ],
+# )
 
-cc_binary(
-    name = "xla2graph",
-    srcs = ["xla2graph.cc"],
-    visibility = ["//visibility:public"],
-    deps = [
-        "//programl:version_header",
-        "//programl/ir/xla:hlo_module_graph_builder",
-        "//programl/third_party/tensorflow:xla_cc",
-        "//programl/util:stdin_fmt",
-        "//programl/util:stdout_fmt",
-        "@labm8//labm8/cpp:app",
-        "@labm8//labm8/cpp:logging",
-        "@labm8//labm8/cpp:statusor",
-        "@labm8//labm8/cpp:string",
-    ],
-)
+# cc_binary(
+#     name = "xla2graph",
+#     srcs = ["xla2graph.cc"],
+#     visibility = ["//visibility:public"],
+#     deps = [
+#         "//programl:version_header",
+#         "//programl/ir/xla:hlo_module_graph_builder",
+#         "//programl/third_party/tensorflow:xla_cc",
+#         "//programl/util:stdin_fmt",
+#         "//programl/util:stdout_fmt",
+#         "@labm8//labm8/cpp:app",
+#         "@labm8//labm8/cpp:logging",
+#         "@labm8//labm8/cpp:statusor",
+#         "@labm8//labm8/cpp:string",
+#     ],
+# )

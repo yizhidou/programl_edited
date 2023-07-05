@@ -33,7 +33,7 @@ py_library(
     deps = [
         "//programl/ir/llvm:inst2vec_encoder",
         "//programl/proto",
-        "//programl/third_party/tensorflow:xla_py",
+        # "//programl/third_party/tensorflow:xla_py",
         "//programl/util/py:util",
     ],
 )

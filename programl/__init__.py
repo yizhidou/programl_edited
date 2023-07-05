@@ -36,7 +36,7 @@ from programl.create_ops import (
     from_clang,
     from_cpp,
     from_llvm_ir,
-    from_xla_hlo_proto,
+    # from_xla_hlo_proto,
 )
 from programl.exceptions import (
     GraphCreationError,
@@ -75,7 +75,7 @@ __all__ = [
     "from_cpp",
     "from_llvm_ir",
     "from_string",
-    "from_xla_hlo_proto",
+    # "from_xla_hlo_proto",
     "GraphCreationError",
     "GraphTransformError",
     "LLVM_VERSIONS",

@@ -26,14 +26,8 @@ def yzd_analyze_cmd_list(task_name: str,
     if result_savepath:
         cmd_list.append('--result_savepath')
         cmd_list.append(result_savepath)
-    if if_sync:
-        cmd_list.append('--sync=true')
-    else:
-        cmd_list.append('--sync=false')
-    if if_idx_reorganized:
-        cmd_list.append('--idx_reorganized=true')
-    else:
-        cmd_list.append('--idx_reorganized=false')
+    cmd_list.append('--sync=' + ('true' if if_sync else 'false'))
+    cmd_list.append('--idx_reorganized=' + ('true' if if_idx_reorganized else 'false'))
     return cmd_list
 
 
@@ -67,9 +61,8 @@ def yzd_analyze(task_name: str,
         stdout, stderr = process.communicate(timeout=timeout)
     except subprocess.TimeoutExpired as e:
         raise TimeoutError(str(e)) from e
-    # 这里需要从stdout中parse出result和各种信息
-    return stdout
-    # return _yzd_result_from_subprocess(process, stdout, stderr)
+
+    return stdout, stderr
 
 
 def yzd_check(task_name: str,
