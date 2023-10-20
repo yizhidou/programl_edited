@@ -55,6 +55,9 @@ DEFINE_string(result_savepath, "unset", "analysis result save path");
 DEFINE_bool(sync, false,
             "if this --sync flag is set to be true, then the message update would be synchronous. "
             "(default: false)");
+DEFINE_bool(new_line_sep_edges, false,
+            "if this --sync flag is set to be true, then the edges will be separated by new lines. "
+            "(default: false)");
 DEFINE_bool(idx_reorganized, true,
             "if this --idx_reorganized flag is set to be true, then the node idex would be "
             "reorganized, (default: true)");
@@ -123,17 +126,18 @@ int main(int argc, char** argv) {
 
     // edge results record
     std::string edge_result_str = "";
+    std::string edge_sep = FLAGS_new_line_sep_edges ? "\n" : " ";
     if (task_name == "yzd_dominance" || task_name == "yzd_reachability") {
       for (const auto& edge : edgeList) {
-        edge_result_str +=
-            (std::to_string(edge.source_node) + " " + std::to_string(edge.target_node) + " ");
+        edge_result_str += (std::to_string(edge.source_node) + " " +
+                            std::to_string(edge.target_node) + edge_sep);
       }
 
     } else if (task_name == "yzd_liveness") {
       for (const auto& edge : edgeList) {
         edge_result_str +=
             (std::to_string(edge.source_node) + " " + std::to_string(edge.target_node) + " " +
-             std::to_string(edge.edge_type) + " ");
+             std::to_string(edge.edge_type) + edge_sep);
       }
     }
     if (FLAGS_edge_list_savepath != "unset") {

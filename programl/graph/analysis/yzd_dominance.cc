@@ -35,7 +35,7 @@ void YZDDominance::ParseProgramGraph() {  // 需要把program_points 和 interes
 labm8::Status YZDDominance::ParseProgramGraph_idx_reorganized() {
   // 需要把program_points 和 interested_points 给算好;
   // gens/kills 算好； adjacencies也算好
-  std::cout << "yzd_dominance: We do rearange node idx!" << std::endl;
+  // std::cout << "yzd_dominance: We do rearange node idx!" << std::endl;
   NodeSet tmp_program_points;
   for (const auto& cur_edge : program_graph.edge()) {
     if (cur_edge.flow() == programl::Edge::CONTROL) {
