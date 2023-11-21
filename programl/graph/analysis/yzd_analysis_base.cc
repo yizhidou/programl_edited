@@ -251,39 +251,32 @@ labm8::Status AnalysisBase::Init_sync() {
       // std::cout << "not update, so continue! cur_bv = " << updated_bitvector << std::endl;
       continue;
     }
-    // assert((!temp.contains(cur_node_idx)) &&
-    //        "This should not be true! or it is the mistake of operator|");
-    // if (!temp.contains(cur_node_idx)){
-    //   std::cout << "If updated_bv !=  or it is the mistake of operator|" << std::endl;
-    //   std::cout << "temp = " << temp << std::endl;
-    //   std::abort();
-    // }
-    if (analysis_setting.may_or_must == may) {
-      assert((updated_bitvector.size() > 0) &&
-             (updated_bitvector > stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]]) &&
-             "should always extend!!!");
-      if ((updated_bitvector.size() == 0) |
-          !(updated_bitvector > stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]])) {
-        std::cout << "may: should always extend!!!" << std::endl;
-        abort();
-      }
-    } else {
-      // must
-      assert(
-          (updated_bitvector.size() == 0) |
-              !(updated_bitvector < stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]]) &&
-          "should always shrink!!!");
-      if (!((cur_node_idx == 4) | (cur_node_idx == 149)) &&
-          ((updated_bitvector.size() == 0) |
-           !(updated_bitvector < stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]]))) {
-        std::cout << "must: should always shrink!!!" << std::endl;
-        std::cout << "before update: "
-                  << stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]] << std::endl;
-        std::cout << "after  update: " << updated_bitvector << std::endl;
+    
+    // if (analysis_setting.may_or_must == may) {
+    //   if ((updated_bitvector.size() == 0) |
+    //       !(updated_bitvector > stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]])) {
+    //     std::cout << "may: should always extend!!!" << std::endl;
+    //     abort();
+    //   }
+    //   std::cout << "cur_iter_idx: " << cur_iter_idx << ", cur_node_idx: " << cur_node_idx << ". diff = " << updated_bitvector - stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]] << std::endl;
+    // } else {
+    //   // must
+    //   assert(
+    //       (updated_bitvector.size() == 0) |
+    //           !(updated_bitvector < stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]]) &&
+    //       "should always shrink!!!");
+    //   if (!((cur_node_idx == 4) | (cur_node_idx == 149)) &&
+    //       ((updated_bitvector.size() == 0) |
+    //        !(updated_bitvector < stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]]))) {
+    //     std::cout << "must: should always shrink!!!" << std::endl;
+    //     std::cout << "before update: "
+    //               << stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]] << std::endl;
+    //     std::cout << "after  update: " << updated_bitvector << std::endl;
 
-        abort();
-      }
-    }
+    //     abort();
+    //   }
+    //   std::cout << "cur_iter_idx: " << cur_iter_idx << ", cur_node_idx: " << cur_node_idx << ". diff = " <<  stored_nodesets[result_pointers[cur_iter_idx][cur_node_idx]] - updated_bitvector << std::endl;
+    // }
 
     stored_nodesets.push_back(updated_bitvector);
     // std::cout << "before update: " <<

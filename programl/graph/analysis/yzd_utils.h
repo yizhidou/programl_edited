@@ -99,8 +99,14 @@ struct AnalysisSetting {
       case yzd_liveness:
         return std::string("Liveness Analysis (yzd)");
         break;
-
+      case yzd_reachability:
+        return std::string("Reachability Analysis (yzd)");
+        break;
+      case yzd_dominance:
+        return std::string("Dominance Analysis (yzd)");
+        break;
       default:
+        return std::string("Unrecognized (yzd)");
         break;
     }
   }
